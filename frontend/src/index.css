@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font: "Inter", sans-serif;
+  --heading-font: "Inter", sans-serif;
+  --color: #68686f;
+  --base: #753918;
+  --primary: #f7c35f;
+  --secondary: #ebcf8a;
+  --special: #5366c2;
+}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font);
+  color: var(--color);
+  background-color: #f8f7f4;
+}

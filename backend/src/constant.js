@@ -1,12 +1,11 @@
-
-export const TABLE = {
-  workflows: 'workflows',
-  workflow_states: 'workflow_states',
-  workflow_transitions: 'workflow_transitions',
-  application_types: 'application_types',
-  document_requirements: 'document_requirements',
-  user_workflow_roles: 'user_workflow_roles',
-  users: 'users',
-  applications: 'applications',
-  audit_logs: 'audit_logs',
-};
+export const activeStates = [
+  "SUBMITTED",
+  "UNDER_INITIAL_REVIEW",
+  "PENDING_INFORMATION",
+  "UNDER_LEGAL_REVIEW",
+  "UNDER_FINANCIAL_REVIEW",
+  "UNDER_REVIEW",
+  "PENDING_APPROVAL",
+  "APPROVED",
+  "REJECTED",
+];

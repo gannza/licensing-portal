@@ -35,4 +35,22 @@ async function updateStatus(id, is_active) {
   return row;
 }
 
-module.exports = { findByEmail, findById, create, updateLastLogin, updatePassword, findAll, updateStatus };
+async function getUserWorkflowRoles(id) {
+
+    const user = await findById(id);
+    if (!user) return null;
+    const { password_hash, ...safe } = user;
+    const roles = await db('user_workflow_roles')
+      .where({ user_id: id })
+      .join('workflows', 'user_workflow_roles.workflow_id', 'workflows.id')
+      .select('user_workflow_roles.*', 'workflows.name as workflow_name');
+    return { ...safe, workflow_roles: roles };
+
+}
+async function getUserRoles(user_id) {
+   const userRoles = await db('user_workflow_roles').where({ user_id: user_id }).select('workflow_id', 'role');
+    return userRoles;
+}
+  
+
+module.exports = { findByEmail, findById, create, updateLastLogin, updatePassword, findAll, updateStatus, getUserWorkflowRoles, getUserRoles };

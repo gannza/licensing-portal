@@ -30,55 +30,6 @@ async function findAllWorkflows() {
     .join('application_types', 'application_types.id', 'workflows.application_type_id');
 }
 
-// Returns only active types (public endpoint)
-async function findAllTypes() {
-  const types = await db('application_types').where({ is_active: true }).orderBy('name');
-  const result = [];
-  for (const t of types) {
-    const requirements = await db('document_requirements')
-      .where({ application_type_id: t.id })
-      .orderBy('display_order');
-    result.push({ ...t, document_requirements: requirements });
-  }
-  return result;
-}
-
-// Admin: Application Types
-
-async function findAllTypesAdmin() {
-  const types = await db('application_types').orderBy('name');
-  const result = [];
-  for (const t of types) {
-    const requirements = await db('document_requirements')
-      .where({ application_type_id: t.id })
-      .orderBy('display_order');
-    result.push({ ...t, document_requirements: requirements });
-  }
-  return result;
-}
-
-async function findTypeById(id) {
-  const type = await db('application_types').where({ id }).first();
-  if (!type) return null;
-  const requirements = await db('document_requirements')
-    .where({ application_type_id: id })
-    .orderBy('display_order');
-  return { ...type, document_requirements: requirements };
-}
-
-async function createType(data) {
-  const [row] = await db('application_types').insert(data).returning('*');
-  return { ...row, document_requirements: [] };
-}
-
-async function updateType(id, data) {
-  const [row] = await db('application_types').where({ id }).update(data).returning('*');
-  return row;
-}
-
-async function deleteType(id) {
-  await db('application_types').where({ id }).delete();
-}
 
 
 async function findWorkflowsByTypeId(application_type_id) {
@@ -155,25 +106,7 @@ async function deleteWorkflowTransition(id) {
   await db('workflow_transitions').where({ id }).delete();
 }
 
-// Admin: Document Requirements
 
-async function findDocumentRequirementById(id) {
-  return db('document_requirements').where({ id }).first();
-}
-
-async function createDocumentRequirement(data) {
-  const [row] = await db('document_requirements').insert(data).returning('*');
-  return row;
-}
-
-async function updateDocumentRequirement(id, data) {
-  const [row] = await db('document_requirements').where({ id }).update(data).returning('*');
-  return row;
-}
-
-async function deleteDocumentRequirement(id) {
-  await db('document_requirements').where({ id }).delete();
-}
 
 module.exports = {
   // Existing
@@ -184,13 +117,7 @@ module.exports = {
   findInitialState,
   findUserWorkflowRoles,
   findAllWorkflows,
-  findAllTypes,
-  // Admin: types
-  findAllTypesAdmin,
-  findTypeById,
-  createType,
-  updateType,
-  deleteType,
+
   // Admin: workflows
   findWorkflowsByTypeId,
   findWorkflowById,
@@ -209,9 +136,4 @@ module.exports = {
   createWorkflowTransition,
   updateWorkflowTransition,
   deleteWorkflowTransition,
-  // Admin: document requirements
-  findDocumentRequirementById,
-  createDocumentRequirement,
-  updateDocumentRequirement,
-  deleteDocumentRequirement,
 };

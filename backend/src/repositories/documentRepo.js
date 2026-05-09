@@ -34,4 +34,31 @@ async function findById(id) {
   return db('application_documents').where({ id }).first();
 }
 
-module.exports = { create, findLatestForCycle, findAllForApplication, findHistory, markSuperseded, findById };
+// Admin: Document Requirements
+
+async function findDocumentRequirementById(id) {
+  return db('document_requirements').where({ id }).first();
+}
+
+async function createDocumentRequirement(data) {
+  const [row] = await db('document_requirements').insert(data).returning('*');
+  return row;
+}
+
+async function updateDocumentRequirement(id, data) {
+  const [row] = await db('document_requirements').where({ id }).update(data).returning('*');
+  return row;
+}
+
+async function deleteDocumentRequirement(id) {
+  await db('document_requirements').where({ id }).delete();
+}
+
+async function findDocumentRequirementByApplicationTypeId(application_type_id) {
+ return await db("document_requirements").where({
+      application_type_id: application_type_id,
+    });
+}
+
+
+module.exports = { create, findLatestForCycle, findAllForApplication, findHistory, markSuperseded, findById, findDocumentRequirementById, createDocumentRequirement, updateDocumentRequirement, deleteDocumentRequirement, findDocumentRequirementByApplicationTypeId  };

@@ -1,3 +1,4 @@
+const { activeStates } = require('../constant');
 const db = require('../db/knex');
 
 async function create(data) {
@@ -8,6 +9,8 @@ async function create(data) {
 async function findById(id) {
   return db('applications').where({ id }).first();
 }
+
+
 
 async function findByIdWithDetails(id) {
   const app = await db('applications')

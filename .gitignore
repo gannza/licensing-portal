@@ -1,0 +1,8 @@
+# Ignore all node_modules folders anywhere
+**/node_modules/
+
+# Ignore backend env file
+backend/.env
+
+# Ignore backend uploads folder
+backend/uploads/

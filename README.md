@@ -1,4 +1,4 @@
-# BNR Licensing Portal
+# BNR Licensing Portal(2nd Written Test)
 
 An app used by the National Bank of Rwanda to facilitate licensing of various applications. The user will fill in their applications via the internet, while the staff will handle each application according to the multi-stage workflow process that can be customized by them.
 

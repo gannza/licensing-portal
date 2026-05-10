@@ -8,7 +8,7 @@ const { validateTransition }      = require('../../services/stateMachineService'
 const workflowRepo                = require('../../repositories/workflowRepo');
 const { ForbiddenError }          = require('../../utils/errors');
 
-// ─── requireRole middleware ───────────────────────────────────────────────────
+// requireRole middleware tests cover the requireRole function in isolation, without involving
 
 describe('requireRole middleware — system role enforcement', () => {
   let res, next;
@@ -18,7 +18,7 @@ describe('requireRole middleware — system role enforcement', () => {
     next = jest.fn();
   });
 
-  // ── no user ────────────────────────────────────────────────────────────────
+  // no user
 
   it('passes ForbiddenError to next() when req.user is absent', () => {
     const req = {};
@@ -28,13 +28,13 @@ describe('requireRole middleware — system role enforcement', () => {
     expect(next.mock.calls[0][0]).toBeInstanceOf(ForbiddenError);
   });
 
-  // ── ADMIN routes ───────────────────────────────────────────────────────────
+  // ADMIN routes 
 
   it('calls next() with no args for ADMIN user on an ADMIN route', () => {
     const req = { user: { system_role: 'ADMIN' } };
     requireRole('ADMIN')(req, res, next);
 
-    expect(next).toHaveBeenCalledWith(/* nothing */);
+    expect(next).toHaveBeenCalledWith();
   });
 
   it('denies APPLICANT on an ADMIN-only route', () => {
@@ -51,7 +51,7 @@ describe('requireRole middleware — system role enforcement', () => {
     expect(next.mock.calls[0][0]).toBeInstanceOf(ForbiddenError);
   });
 
-  // ── APPLICANT routes ───────────────────────────────────────────────────────
+  // APPLICANT routes
 
   it('allows APPLICANT on an APPLICANT-only route', () => {
     const req = { user: { system_role: 'APPLICANT' } };
@@ -74,7 +74,7 @@ describe('requireRole middleware — system role enforcement', () => {
     expect(next.mock.calls[0][0]).toBeInstanceOf(ForbiddenError);
   });
 
-  // ── STAFF routes ───────────────────────────────────────────────────────────
+  // STAFF routes
 
   it('allows STAFF on a STAFF-only route', () => {
     const req = { user: { system_role: 'STAFF' } };
@@ -83,7 +83,7 @@ describe('requireRole middleware — system role enforcement', () => {
     expect(next).toHaveBeenCalledWith();
   });
 
-  // ── Multi-role routes ──────────────────────────────────────────────────────
+  // Test Multi-role routes
 
   it('allows ADMIN on a route that accepts ADMIN or STAFF', () => {
     const req = { user: { system_role: 'ADMIN' } };
@@ -106,7 +106,7 @@ describe('requireRole middleware — system role enforcement', () => {
     expect(next.mock.calls[0][0]).toBeInstanceOf(ForbiddenError);
   });
 
-  // ── Error message content ──────────────────────────────────────────────────
+  // Error message content
 
   it('includes the allowed roles in the ForbiddenError message', () => {
     const req = { user: { system_role: 'APPLICANT' } };
@@ -118,7 +118,7 @@ describe('requireRole middleware — system role enforcement', () => {
   });
 });
 
-// ─── Workflow role enforcement (via stateMachineService) ─────────────────────
+// Workflow role
 //
 // Tests that each workflow role can only trigger the transitions it is
 // authorised for, and that cross-role attempts are denied.
@@ -152,7 +152,7 @@ describe('Workflow role enforcement via stateMachineService', () => {
     workflowRepo.findUserWorkflowRoles.mockResolvedValueOnce(roles);
   }
 
-  // ── INTAKE_OFFICER ─────────────────────────────────────────────────────────
+  // INTAKE_OFFICER
 
   it('INTAKE_OFFICER can perform a transition requiring INTAKE_OFFICER role', async () => {
     mockCurrentState();
@@ -175,7 +175,7 @@ describe('Workflow role enforcement via stateMachineService', () => {
     ).rejects.toBeInstanceOf(ForbiddenError);
   });
 
-  // ── REVIEWER ───────────────────────────────────────────────────────────────
+  // REVIEWER
 
   it('REVIEWER can move an application to the legal-review stage', async () => {
     mockCurrentState();
@@ -198,7 +198,7 @@ describe('Workflow role enforcement via stateMachineService', () => {
     ).rejects.toBeInstanceOf(ForbiddenError);
   });
 
-  // ── LEGAL_OFFICER ──────────────────────────────────────────────────────────
+  // LEGAL_OFFICER
 
   it('LEGAL_OFFICER can move an application through legal review', async () => {
     mockCurrentState();
@@ -221,7 +221,7 @@ describe('Workflow role enforcement via stateMachineService', () => {
     ).rejects.toBeInstanceOf(ForbiddenError);
   });
 
-  // ── APPROVER ───────────────────────────────────────────────────────────────
+  // APPROVER
 
   it('APPROVER can approve an application they did not review', async () => {
     const app = mkApp({ current_state: 'FINAL_REVIEW', reviewed_by: 'someone-else-uuid' });
@@ -236,7 +236,7 @@ describe('Workflow role enforcement via stateMachineService', () => {
   });
 
   it('APPROVER is blocked from approving an application they personally reviewed', async () => {
-    // reviewed_by matches the approver's id → reviewer-cannot-approve rule
+    // reviewed_by matches the approver's id -> reviewer-cannot-approve rule
     const approverUser = { id: 'approver-uuid', system_role: 'STAFF' };
     const app = mkApp({ current_state: 'FINAL_REVIEW', reviewed_by: 'approver-uuid' });
 
@@ -249,7 +249,7 @@ describe('Workflow role enforcement via stateMachineService', () => {
       .rejects.toBeInstanceOf(ForbiddenError);
   });
 
-  // ── Cross-role denial ──────────────────────────────────────────────────────
+  // Cross-role denial
 
   it('staff with no workflow roles is denied every transition', async () => {
     mockCurrentState();

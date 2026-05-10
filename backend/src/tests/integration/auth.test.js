@@ -112,8 +112,6 @@ describe('POST /api/auth/login', () => {
     expect(res.status).toBe(400);
   });
 
-  // ── must_change_password flow ─────────────────────────────────────────────
-
   it('returns must_change_password:true and user_id when the flag is set', async () => {
     userRepo.findByEmail.mockResolvedValue({ ...mockUser, must_change_password: true });
 
@@ -140,7 +138,7 @@ describe('POST /api/auth/login', () => {
   });
 });
 
-// ─── POST /api/auth/refresh ───────────────────────────────────────────────────
+// POST /api/auth/refresh
 
 describe('POST /api/auth/refresh', () => {
   it('returns 200 and issues fresh auth cookies with a valid refresh token', async () => {
@@ -231,7 +229,7 @@ describe('POST /api/auth/refresh', () => {
   });
 });
 
-// ─── POST /api/auth/logout ────────────────────────────────────────────────────
+// POST /api/auth/logout
 
 describe('POST /api/auth/logout', () => {
   it('returns 200 with a success message', async () => {
@@ -264,7 +262,7 @@ describe('POST /api/auth/logout', () => {
   });
 });
 
-// ─── GET /api/auth/me — expired-token guard ───────────────────────────────────
+// GET /api/auth/me — expired-token guard
 
 describe('GET /api/auth/me', () => {
   it('returns 401 when no access token is provided', async () => {

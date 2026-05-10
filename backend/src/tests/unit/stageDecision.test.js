@@ -14,7 +14,7 @@ const auditService         = require('../../services/auditService');
 const db                   = require('../../db/knex');
 const { ValidationError, UnprocessableError } = require('../../utils/errors');
 
-// ─── stageDecisionService.createDecision ─────────────────────────────────────
+// stageDecisionService.createDecision
 
 describe('stageDecisionService.createDecision', () => {
   const baseInput = {
@@ -32,7 +32,7 @@ describe('stageDecisionService.createDecision', () => {
     stageDecisionRepo.create.mockResolvedValue(savedRow);
   });
 
-  // ── decision_note validation ─────────────────────────────────────────────
+  // decision_note validation
 
   it('throws ValidationError for a null decision_note', async () => {
     await expect(createDecision({ ...baseInput, decision_note: null }))
@@ -54,7 +54,7 @@ describe('stageDecisionService.createDecision', () => {
       .rejects.toBeInstanceOf(ValidationError);
   });
 
-  // ── decision_type validation ──────────────────────────────────────────────
+  // decision_type validation
 
   it('throws ValidationError for an unrecognised decision_type', async () => {
     await expect(createDecision({ ...baseInput, decision_type: 'REJECTED' }))
@@ -66,7 +66,7 @@ describe('stageDecisionService.createDecision', () => {
       .rejects.toThrow(/APPROVED_STAGE.*REQUEST_INFO.*ESCALATED/);
   });
 
-  // ── valid insertions ──────────────────────────────────────────────────────
+  // valid insertions
 
   it('calls repo.create and returns the record for APPROVED_STAGE', async () => {
     const result = await createDecision({ ...baseInput, decision_type: 'APPROVED_STAGE' });
@@ -114,7 +114,7 @@ describe('stageDecisionService.createDecision', () => {
   });
 });
 
-// ─── Missing decision blocks transition (applicationService) ──────────────────
+// Missing decision blocks transition
 
 describe('applicationService.performTransition — decision note enforcement', () => {
   const baseApp = {

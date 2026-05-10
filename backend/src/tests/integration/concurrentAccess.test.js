@@ -26,8 +26,6 @@ const auditService        = require('../../services/auditService');
 const db                  = require('../../db/knex');
 const { ConflictError }   = require('../../utils/errors');
 
-// ─── Fixtures ────────────────────────────────────────────────────────────────
-
 const baseApplication = {
   id:                       'app-uuid',
   version:                  5,
@@ -41,13 +39,9 @@ const baseApplication = {
 
 const actingStaff = { id: 'staff-uuid', system_role: 'STAFF' };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 /**
- * Build a minimal db.transaction mock.
- *
- * @param {number} rowsUpdated  Rows matched by the optimistic-lock WHERE clause.
- *                              0 simulates a concurrent write that already won.
+ * Rows matched by the optimistic-lock WHERE clause
+ * 0 simulates a concurrent write that already won.
  */
 function setupTransaction(rowsUpdated) {
   const updatedApp = { ...baseApplication, current_state: 'LEGAL_REVIEW', version: baseApplication.version + 1 };
@@ -82,7 +76,7 @@ function setupTransaction(rowsUpdated) {
   db.fn  = { now: jest.fn().mockReturnValue('MOCK_NOW') };
 }
 
-// ─── Tests ────────────────────────────────────────────────────────────────────
+// Tests
 
 beforeEach(() => {
   applicationRepo.findById.mockResolvedValue(baseApplication);
@@ -90,9 +84,9 @@ beforeEach(() => {
   auditService.log.mockResolvedValue(undefined);
 });
 
-describe('Optimistic locking — single-writer scenarios', () => {
+describe('Optimistic locking - single-writer scenarios', () => {
   it('succeeds and returns the updated application when the version matches', async () => {
-    setupTransaction(1); // 1 row updated → lock won
+    setupTransaction(1); // 1 row updated -> lock won
 
     const result = await applicationService.performTransition(
       'app-uuid',
@@ -106,7 +100,7 @@ describe('Optimistic locking — single-writer scenarios', () => {
   });
 
   it('throws ConflictError (409) when the version no longer matches', async () => {
-    setupTransaction(0); // 0 rows updated → another writer already advanced the version
+    setupTransaction(0); // 0 rows updated -> another writer already advanced the version
 
     await expect(
       applicationService.performTransition('app-uuid', { toState: 'LEGAL_REVIEW' }, actingStaff),
@@ -132,16 +126,15 @@ describe('Optimistic locking — single-writer scenarios', () => {
   });
 });
 
-describe('Optimistic locking — concurrent-writer scenario', () => {
+describe('Optimistic locking - concurrent-writer scenario', () => {
   /**
    * This test explicitly demonstrates the concurrent-access requirement:
    *
    *   1. Two requests read the same application (version = 5).
-   *   2. Both enter the DB transaction "simultaneously" (simulated via
-   *      Promise.allSettled, which interleaves them on the JS event loop).
-   *   3. The first transaction's UPDATE matches version=5 → succeeds.
-   *   4. The second transaction's UPDATE finds version=6 already set → 0 rows
-   *      → ConflictError is thrown, protecting data integrity.
+   *   2. Both enter the DB transaction "simultaneously" and attempt the same transition.
+   *   3. The first transaction's UPDATE matches version=5 -> succeeds.
+   *   4. The second transaction's UPDATE finds version=6 already set -> 0 rows
+   *      -> ConflictError is thrown, protecting data integrity.
    */
   it('exactly one of two concurrent writers succeeds; the other gets ConflictError', async () => {
     let transactionInvocationCount = 0;

@@ -6,8 +6,6 @@ const { validateTransition, getAvailableTransitions } = require('../../services/
 const workflowRepo = require('../../repositories/workflowRepo');
 const { ForbiddenError, UnprocessableError } = require('../../utils/errors');
 
-// ─── Fixtures ────────────────────────────────────────────────────────────────
-
 const WF_ID = 'wf-uuid';
 
 const mkApp = (overrides = {}) => ({
@@ -40,10 +38,8 @@ function mockWorkflowRoles(roles) {
   workflowRepo.findUserWorkflowRoles.mockResolvedValueOnce(roles);
 }
 
-// ─── validateTransition ───────────────────────────────────────────────────────
 
 describe('stateMachineService.validateTransition', () => {
-  // ── Valid transitions ──────────────────────────────────────────────────────
 
   describe('valid transitions', () => {
     it('succeeds when an applicant submits their own draft', async () => {
@@ -77,7 +73,7 @@ describe('stateMachineService.validateTransition', () => {
     });
   });
 
-  // ── Invalid / missing transitions ──────────────────────────────────────────
+  // Invalid / missing transitions
 
   describe('invalid transitions', () => {
     it('throws UnprocessableError when no transition exists between those states', async () => {
@@ -97,7 +93,7 @@ describe('stateMachineService.validateTransition', () => {
     });
   });
 
-  // ── Terminal state blocks further transitions ──────────────────────────────
+  // Terminal state blocks further transitions
 
   describe('terminal state enforcement', () => {
     it('throws UnprocessableError when application is already in a terminal state', async () => {
@@ -124,7 +120,7 @@ describe('stateMachineService.validateTransition', () => {
     });
   });
 
-  // ── Role enforcement ───────────────────────────────────────────────────────
+  // Role enforcement
 
   describe('role enforcement', () => {
     it('throws ForbiddenError when an applicant tries a staff-only transition', async () => {
@@ -171,7 +167,7 @@ describe('stateMachineService.validateTransition', () => {
     });
   });
 
-  // ── Reviewer-cannot-approve rule ───────────────────────────────────────────
+  // Reviewer-cannot-approve rule
 
   describe('reviewer-cannot-approve rule', () => {
     it('throws ForbiddenError when the reviewer tries to approve (terminal destination)', async () => {
@@ -220,7 +216,7 @@ describe('stateMachineService.validateTransition', () => {
   });
 });
 
-// ─── getAvailableTransitions ──────────────────────────────────────────────────
+// getAvailableTransitions
 
 describe('stateMachineService.getAvailableTransitions', () => {
   it('returns an empty array when the application is in a terminal state', async () => {

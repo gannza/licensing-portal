@@ -1,6 +1,8 @@
 const { v4: uuidv4 } = require('uuid');
 const documentRepo = require('../repositories/documentRepo');
-const { NotFoundError, ValidationError } = require('../utils/errors');
+const auditService = require('./auditService');
+const applicationRepo = require('../repositories/applicationRepo');
+const { NotFoundError, ValidationError, UnprocessableError, ForbiddenError } = require('../utils/errors');
 const db = require('../db/knex');
 
 async function uploadDocument({ application, requirement, file, uploadedBy }) {
@@ -52,4 +54,76 @@ async function validateRequiredDocuments(application, documentRequirements) {
   return missing;
 }
 
-module.exports = { uploadDocument, getDocumentsForCycle, validateRequiredDocuments };
+async function upload(file, application_id, requirement_key, uploaded_by,system_role) {
+
+    if (!file) throw new UnprocessableError('No file uploaded');
+
+    const app = await applicationRepo.findById(application_id);
+    if (!app) throw new NotFoundError('Application');
+
+    if (system_role !== 'APPLICANT' || app.applicant_id !== uploaded_by) {
+      throw new ForbiddenError('Only the applicant can upload documents');
+    }
+
+    if (!['DRAFT', 'PENDING_INFORMATION'].includes(app.current_state)) {
+      throw new UnprocessableError('Documents can only be uploaded when the application is in DRAFT or PENDING_INFORMATION state');
+    }
+
+    const requirement = await db('document_requirements')
+      .where({ application_type_id: app.application_type_id, key: requirement_key })
+      .first();
+
+    if (!requirement) throw new NotFoundError('Document requirement');
+
+    const doc = await uploadDocument({
+      application: app,
+      requirement,
+      file: file,
+      uploadedBy: uploaded_by,
+    });
+
+    await auditService.log({
+      application_id: app.id,
+      acting_user_id: uploaded_by,
+      action: 'DOCUMENT_UPLOAD',
+      metadata: { requirement_key: requirement_key, file_name: file.originalname },
+    });
+    return doc;
+}
+
+
+async function list(application_id, user_id, system_role, submission_cycle) {
+    const app = await applicationRepo.findById(application_id);
+    if (!app) throw new NotFoundError("Application");
+
+    if (
+      system_role === "APPLICANT" &&
+      app.applicant_id !== user_id
+    ) {
+      throw new ForbiddenError();
+    }
+
+    const cycle = parseInt(submission_cycle) || app.current_submission_cycle;
+    const docs = await documentService.getDocumentsForCycle(app.id, cycle);
+    return docs;
+}
+
+async function getHistory(application_id, user_id, system_role, requirement_key) {
+    const app = await applicationRepo.findById(application_id);
+    if (!app) throw new NotFoundError("Application");
+
+    if (
+      system_role === "APPLICANT" &&
+      app.applicant_id !== user_id
+    ) {
+      throw new ForbiddenError();
+    }
+
+    const history = await documentRepo.findHistory(
+      app.id,
+      requirement_key,
+    );
+    return history;
+}
+
+module.exports = { uploadDocument, getDocumentsForCycle, validateRequiredDocuments, upload, list, getHistory };

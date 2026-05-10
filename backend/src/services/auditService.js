@@ -13,4 +13,8 @@ async function log({ application_id, acting_user_id, action, from_state, to_stat
   }, trx);
 }
 
-module.exports = { log };
+async function getAuditLogs(page = 1, limit = 50) {
+  return auditRepo.findAll({ page, limit });
+}
+
+module.exports = { log, getAuditLogs };

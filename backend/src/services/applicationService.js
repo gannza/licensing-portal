@@ -63,8 +63,11 @@ async function performTransition(
   }
 
   if (toState === "SUBMITTED") {
-    const docRequirements = await documentRepo.findDocumentRequirementByApplicationTypeId(application.application_type_id);
-   
+    const docRequirements =
+      await documentRepo.findDocumentRequirementByApplicationTypeId(
+        application.application_type_id,
+      );
+
     const missing = await documentService.validateRequiredDocuments(
       application,
       docRequirements,
@@ -146,7 +149,7 @@ async function performTransition(
   });
 }
 
-async function getTimeline(application_id ) {
+async function getTimeline(application_id) {
   const [stateTransitions, stageDecisions] = await Promise.all([
     auditRepo.findByApplication(application_id),
     stageDecisionRepo.findByApplication(application_id),
@@ -180,13 +183,32 @@ async function getTimeline(application_id ) {
   return timeline;
 }
 
-async function getAllApplications(page=1, limit=20, state, workflow_id) {
-  const result =  await applicationRepo.findAll({
-      page,
-      limit,
-      state: state,
-      workflow_id: workflow_id,
-    });
+async function getTimelineWorkflowStates(application_id,user_id, system_role) {
+
+    const app = await applicationRepo.findById(application_id);
+    if (!app) throw new NotFoundError("Application");
+
+    if (
+      system_role === "APPLICANT" &&
+      app.applicant_id !== user_id
+    ) {
+      throw new ForbiddenError();
+    }
+
+    const [timeline, workflowStates] = await Promise.all([
+      getTimeline(application_id),
+      workflowRepo.findWorkflowStates(app.workflow_id),
+    ]);
+   return { timeline, workflow_states: workflowStates };
+}
+
+async function getAllApplications(page = 1, limit = 20, state, workflow_id) {
+  const result = await applicationRepo.findAll({
+    page,
+    limit,
+    state: state,
+    workflow_id: workflow_id,
+  });
   return {
     data: result.rows,
     pagination: { page, limit, total: result.total },
@@ -194,54 +216,114 @@ async function getAllApplications(page=1, limit=20, state, workflow_id) {
 }
 
 async function getById(application_id, user_id, system_role) {
+  const app = await applicationRepo.findByIdWithDetails(application_id);
+  if (!app) throw new NotFoundError("Application");
 
-    const app = await applicationRepo.findByIdWithDetails(application_id);
-    if (!app) throw new NotFoundError('Application');
+  if (system_role === "APPLICANT" && app.applicant_id !== user_id) {
+    throw new ForbiddenError();
+  }
 
-    if (system_role === 'APPLICANT' && app.applicant_id !== user_id) {
+  const transitions = await stateMachineService.getAvailableTransitions(app, {
+    id: user_id,
+    system_role,
+  });
+  const docs = await documentRepo.findAllForApplication(
+    app.id,
+    app.current_submission_cycle,
+  );
+  const currentDocs = docs.filter((d) => !d.superseded_by);
+
+  return {
+      ...app,
+      available_transitions: transitions,
+      documents: currentDocs,
+  }
+}
+
+async function getList(page = 1, limit = 20, user_id, system_role) {
+  if (system_role === "ADMIN") {
+    const result = await getAllApplications(
+      page,
+      limit,
+      req.query.state,
+      req.query.workflow_id,
+    );
+    return result;
+  }
+
+  if (system_role === "APPLICANT") {
+    const result = await applicationRepo.findByApplicant(user_id, {
+      page,
+      limit,
+    });
+    return {
+      data: result.rows,
+      pagination: { page, limit, total: result.total },
+    };
+  }
+
+  if (system_role === "STAFF") {
+    const userRoles = await userRepo.getUserRoles(user_id);
+    if (userRoles.length === 0) {
+      return { data: [], pagination: { page, limit, total: 0 } };
+    }
+
+    const allApps = [];
+    for (const { workflow_id } of userRoles) {
+      const apps = await applicationRepo.findByWorkflowRole(
+        workflow_id,
+        activeStates,
+        { page: 1, limit: 100 },
+      );
+      allApps.push(...apps.rows);
+    }
+
+    const seen = new Set();
+    const deduped = allApps.filter((a) => {
+      if (seen.has(a.id)) return false;
+      seen.add(a.id);
+      return true;
+    });
+    return {
+      data: deduped,
+      pagination: { page, limit, total: deduped.length },
+    };
+  }
+
+  const result = await applicationRepo.findAll({
+    page,
+    limit,
+    state: req.query.state,
+    workflow_id: req.query.workflow_id,
+  });
+  return {
+    data: result.rows,
+    pagination: { page, limit, total: result.total },
+  };
+}
+
+async function getStageDecisions(application_id, user_id, system_role) {
+    const app = await applicationRepo.findById(application_id);
+    if (!app) throw new NotFoundError("Application");
+
+    if (
+      system_role === "APPLICANT" &&
+      app.applicant_id !== user_id
+    ) {
       throw new ForbiddenError();
     }
 
-    const transitions = await stateMachineService.getAvailableTransitions(app, { id: user_id, system_role });
-    const docs = await documentRepo.findAllForApplication(app.id, app.current_submission_cycle);
-    const currentDocs = docs.filter(d => !d.superseded_by);
-
-    return { success: true, data: { ...app, available_transitions: transitions, documents: currentDocs } };
-  
+    const decisions = await stageDecisionRepo.findByApplication(application_id);
+    return decisions;
 }
 
-async function getList(page=1, limit=20, user_id, system_role) {
-
-    if (system_role === 'APPLICANT') {
-      const result = await applicationRepo.findByApplicant(user_id, { page, limit });
-      return { success: true, data: result.rows, pagination: { page, limit, total: result.total } };
-    }
-
-    if (system_role === 'STAFF') {
-      const userRoles = await userRepo.getUserRoles(user_id);
-      if (userRoles.length === 0) {
-        return { success: true, data: [], pagination: { page, limit, total: 0 } };
-      }
-
-    
-
-      const allApps = [];
-      for (const { workflow_id } of userRoles) {
-        const apps = await applicationRepo.findByWorkflowRole(workflow_id, activeStates, { page: 1, limit: 100 });
-        allApps.push(...apps.rows);
-      }
-
-      const seen = new Set();
-      const deduped = allApps.filter(a => {
-        if (seen.has(a.id)) return false;
-        seen.add(a.id);
-        return true;
-      });
-      return { success: true, data: deduped, pagination: { page, limit, total: deduped.length } };
-    }
-
-    const result =  await applicationRepo.findAll({ page, limit, state: req.query.state, workflow_id: req.query.workflow_id });
-    return { success: true, data: result.rows, pagination: { page, limit, total: result.total } };
-}
-
-module.exports = { createApplication, performTransition, getTimeline, getAllApplications, getList, getById };
+module.exports = {
+  createApplication,
+  performTransition,
+  getTimeline,
+  getAllApplications,
+  getList,
+  getById,
+  getTimelineWorkflowStates,
+  getStageDecisions
+};

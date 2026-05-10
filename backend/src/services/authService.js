@@ -3,9 +3,31 @@ const userRepo = require('../repositories/userRepo');
 const institutionRepo = require('../repositories/institutionRepo');
 const auditRepo = require('../repositories/auditRepo');
 const { hashPassword, verifyPassword } = require('../utils/password');
-const { signAccessToken, signRefreshToken } = require('../utils/jwt');
+const { signAccessToken, signRefreshToken, verifyRefreshToken, REFRESH_EXPIRES } = require('../utils/jwt');
 const { UnauthorizedError, ValidationError, ConflictError } = require('../utils/errors');
 const db = require('../db/knex');
+
+
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict',
+};
+
+function setAccessCookie(res, token) {
+  const ACCESS_EXPIRES = parseInt(process.env.JWT_EXPIRES_IN || '900');
+  res.cookie('access_token', token, { ...cookieOptions, maxAge: ACCESS_EXPIRES * 1000 });
+}
+
+function setRefreshCookie(res, token) {
+  res.cookie('refresh_token', token, { ...cookieOptions, maxAge: REFRESH_EXPIRES * 1000 });
+}
+
+function setAuthCookies(res, { access_token, refresh_token }) {
+  setAccessCookie(res, access_token);
+  setRefreshCookie(res, refresh_token);
+}
+
 
 async function register({ email, password, full_name, phone, institution_name, institution_registration_number }) {
   const existing = await userRepo.findByEmail(email);
@@ -63,6 +85,19 @@ async function login({ email, password }) {
   return { user: sanitize(user), ...tokens };
 }
 
+async function refresh(refresh_token) {
+  const token = refresh_token;
+  if (!token) return next(new UnauthorizedError('No refresh token'));
+
+    const payload = verifyRefreshToken(token);
+    const user = await userRepo.findById(payload.sub);
+    if (!user || !user.is_active) throw new UnauthorizedError('User not found or inactive');
+    const newAccess = signAccessToken({ sub: user.id, system_role: user.system_role });
+    const newRefresh = signRefreshToken({ sub: user.id, system_role: user.system_role });
+     setAuthCookies(res, { access_token: newAccess, refresh_token: newRefresh });
+    return true;
+}
+
 async function changePassword(userId, { current_password, new_password }) {
   const user = await userRepo.findById(userId);
   if (!user) throw new UnauthorizedError();
@@ -93,4 +128,10 @@ function sanitize(user) {
   return rest;
 }
 
-module.exports = { register, login, changePassword, issueTokens, sanitize };
+async function getMe(user_id) {
+    const user = await userRepo.findById(user_id);
+    if (!user || !user.is_active) throw new UnauthorizedError('User not found or inactive');
+    return sanitize(user);
+}
+
+module.exports = { register, login,refresh, changePassword, issueTokens, sanitize, setAuthCookies, setRefreshCookie, setAuthCookies, getMe };

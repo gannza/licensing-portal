@@ -8,9 +8,18 @@ async function findById(id) {
   return db('users').where({ id }).first();
 }
 
-async function create(data) {
-  const [row] = await db('users').insert({ ...data, email: data.email.toLowerCase() }).returning('*');
+async function create(data, trx) {
+  const db_ref = trx || db;
+  const [row] = await db_ref('users').insert({ ...data, email: data.email.toLowerCase() }).returning('*');
   return row;
+}
+
+async function assignWorkflowRoles(roleRows, trx) {
+  const db_ref = trx || db;
+  await db_ref('user_workflow_roles')
+    .insert(roleRows)
+    .onConflict(['user_id', 'workflow_id', 'role'])
+    .ignore();
 }
 
 async function updateLastLogin(id) {
@@ -53,4 +62,4 @@ async function getUserRoles(user_id) {
 }
   
 
-module.exports = { findByEmail, findById, create, updateLastLogin, updatePassword, findAll, updateStatus, getUserWorkflowRoles, getUserRoles };
+module.exports = { findByEmail, findById, create, updateLastLogin, updatePassword, findAll, updateStatus, getUserWorkflowRoles, getUserRoles, assignWorkflowRoles };

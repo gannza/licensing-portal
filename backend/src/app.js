@@ -11,7 +11,8 @@ const { requestId } = require('./middleware/requestId');
 // const documentRequirementsRoutes = require('./routes/documentRequirements.routes');
 // const applicationsRoutes = require('./routes/applications.routes');
 // const documentsRoutes = require('./routes/documents.routes');
-// const adminRoutes = require('./routes/admin.routes');
+// const userRoutes = require('./routes/user.routes');
+// const workflowRoutes = require('./routes/workflow.routes');
 const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -38,7 +39,8 @@ const authLimiter = rateLimit({
 // app.use('/api/document-requirements', documentRequirementsRoutes);
 // app.use('/api/applications', applicationsRoutes);
 // app.use('/api/applications/:id/documents', documentsRoutes);
-// app.use('/api/admin', adminRoutes);
+// app.use('/api/users', userRoutes);
+// app.use('/api/workflows', workflowRoutes);
 
 app.get('/api/health', (_req, res) => res.json({
   status: 'ok',

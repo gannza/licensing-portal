@@ -1,33 +1,30 @@
-const { v4: uuidv4 } = require("uuid");
-const userRepo = require("../repositories/userRepo");
-const auditRepo = require("../repositories/auditRepo");
-const { hashPassword, generateTempPassword } = require("../utils/password");
-const { ConflictError, NotFoundError } = require("../utils/errors");
-const db = require("../db/knex");
+const { v4: uuidv4 } = require('uuid');
+const userRepo = require('../repositories/userRepo');
+const auditRepo = require('../repositories/auditRepo');
+const { hashPassword, generateTempPassword } = require('../utils/password');
+const { ConflictError, NotFoundError, ValidationError } = require('../utils/errors');
+const db = require('../db/knex');
 
-async function createStaffUser(
-  { email, full_name, phone, workflow_roles },
-  admin_id,
-) {
+async function createStaffUser({ email, full_name, phone, workflow_roles }, admin_id) {
   const existing = await userRepo.findByEmail(email);
-  if (existing) throw new ConflictError("Email already registered");
+  if (existing) throw new ConflictError('Email already registered');
 
   const tempPassword = generateTempPassword();
   const password_hash = await hashPassword(tempPassword);
 
   return db.transaction(async (trx) => {
-    const user = await trx("users")
-      .insert({
+    const user = await userRepo.create(
+      {
         id: uuidv4(),
         email: email.toLowerCase(),
         password_hash,
         full_name,
         phone,
-        system_role: "STAFF",
+        system_role: 'STAFF',
         must_change_password: true,
-      })
-      .returning("*")
-      .then((r) => r[0]);
+      },
+      trx,
+    );
 
     if (workflow_roles && workflow_roles.length > 0) {
       const roleRows = workflow_roles.map((wr) => ({
@@ -37,21 +34,15 @@ async function createStaffUser(
         role: wr.role,
         assigned_by: admin_id,
       }));
-      await trx("user_workflow_roles")
-        .insert(roleRows)
-        .onConflict(["user_id", "workflow_id", "role"])
-        .ignore();
+      await userRepo.assignWorkflowRoles(roleRows, trx);
     }
 
     await auditRepo.create(
       {
         id: uuidv4(),
         acting_user_id: admin_id,
-        action: "USER_CREATED",
-        metadata: JSON.stringify({
-          created_user_email: email,
-          system_role: "STAFF",
-        }),
+        action: 'USER_CREATED',
+        metadata: JSON.stringify({ created_user_email: email, system_role: 'STAFF' }),
       },
       trx,
     );
@@ -62,14 +53,18 @@ async function createStaffUser(
 }
 
 async function updateUserStatus(user_id, is_active, admin_id) {
+
+    if (typeof is_active !== 'boolean')
+      throw new ValidationError('is_active must be a boolean');
+
   const user = await userRepo.findById(user_id);
-  if (!user) throw new NotFoundError("User");
+  if (!user) throw new NotFoundError('User');
 
   const updated = await userRepo.updateStatus(user_id, is_active);
   await auditRepo.create({
     id: uuidv4(),
     acting_user_id: admin_id,
-    action: is_active ? "USER_ACTIVATED" : "USER_DEACTIVATED",
+    action: is_active ? 'USER_ACTIVATED' : 'USER_DEACTIVATED',
     metadata: JSON.stringify({ target_user_id: user_id }),
   });
 
@@ -87,9 +82,8 @@ async function listUsers(page = 1, limit = 20) {
 
 async function getUserWorkflowRoles(user_id) {
   const user = await userRepo.getUserWorkflowRoles(user_id);
-   if (!user) throw new NotFoundError('User');
-    return user;
+  if (!user) throw new NotFoundError('User');
+  return user;
 }
-
 
 module.exports = { createStaffUser, updateUserStatus, listUsers, getUserWorkflowRoles };

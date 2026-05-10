@@ -40,13 +40,13 @@ async function uploadDocument({ application, requirement, file, uploadedBy }) {
   });
 }
 
-async function getDocumentsForCycle(application_id, submission_cycle) {
-  const docs = await documentRepo.findAllForApplication(application_id, submission_cycle);
+async function getDocumentsForCycle(application_id) {
+  const docs = await documentRepo.findAllDocumentsForApplication(application_id);
   return docs.filter(d => !d.superseded_by);
 }
 
 async function validateRequiredDocuments(application, documentRequirements) {
-  const docs = await getDocumentsForCycle(application.id, application.current_submission_cycle);
+  const docs = await getDocumentsForCycle(application.id);
   const uploadedKeys = new Set(docs.map(d => d.requirement_key));
   const missing = documentRequirements
     .filter(r => r.is_required && !uploadedKeys.has(r.key))
@@ -100,7 +100,7 @@ async function list(application_id, user_id, system_role, submission_cycle) {
     ) {
       throw new ForbiddenError();
     }
-
+    
     const cycle = parseInt(submission_cycle) || app.current_submission_cycle;
     const docs = await getDocumentsForCycle(app.id, cycle);
     return docs;

@@ -87,15 +87,17 @@ async function login({ email, password }) {
 
 async function refresh(refresh_token) {
   const token = refresh_token;
-  if (!token) return next(new UnauthorizedError('No refresh token'));
+  if (!token) return new UnauthorizedError('No refresh token');
 
     const payload = verifyRefreshToken(token);
+   
     const user = await userRepo.findById(payload.sub);
+     
     if (!user || !user.is_active) throw new UnauthorizedError('User not found or inactive');
     const newAccess = signAccessToken({ sub: user.id, system_role: user.system_role });
     const newRefresh = signRefreshToken({ sub: user.id, system_role: user.system_role });
-     setAuthCookies(res, { access_token: newAccess, refresh_token: newRefresh });
-    return true;
+
+    return { access_token: newAccess, refresh_token: newRefresh };
 }
 
 async function changePassword(userId, { current_password, new_password }) {

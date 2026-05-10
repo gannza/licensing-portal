@@ -15,6 +15,7 @@ const applicationsRoutes = require("./routes/applications.routes");
 const documentsRoutes = require("./routes/documents.routes");
 const userRoutes = require("./routes/user.routes");
 const workflowRoutes = require("./routes/workflow.routes");
+const auditRoutes = require("./routes/audit.routes");
 const { errorHandler } = require("./middleware/errorHandler");
 const swaggerSpec = require("./swagger");
 
@@ -69,6 +70,7 @@ app.use("/api/applications", applicationsRoutes);
 app.use("/api/applications/:id/documents", documentsRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/workflows", workflowRoutes);
+app.use("/api/audit", auditRoutes);
 
 app.get("/api/health", (_req, res) =>
   res.json({

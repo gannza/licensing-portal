@@ -56,7 +56,7 @@ const swaggerSpec = {
       },
       DecisionType: {
         type: "string",
-        enum: ["APPROVED_STAGE", "REQUEST_INFO", "ESCALATED"],
+        enum: ["APPROVED_STAGE", "REQUEST_INFO"],
       },
       ApplicationState: {
         type: "string",

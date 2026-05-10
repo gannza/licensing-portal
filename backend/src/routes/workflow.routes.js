@@ -9,6 +9,7 @@ const {
   validateUpdateState,
   validateCreateTransition,
   validateUpdateTransition,
+  validateAddAssignment,
 } = require("../dto");
 const {
   getWorkflows,
@@ -23,6 +24,9 @@ const {
   createWorkflowTransition,
   updateWorkflowTransition,
   deleteWorkflowTransition,
+  listWorkflowAssignments,
+  addWorkflowAssignment,
+  removeWorkflowAssignment,
 } = require("../controllers/workflowController");
 
 const router = express.Router();
@@ -38,8 +42,8 @@ router.delete("/:id", deleteWorkflow);
 // Workflow States
 router.get("/:id/states", listWorkflowStates);
 router.post("/:id/states", validateCreateState, createWorkflowState);
-router.patch("/workflow-states/:id", validateUpdateState, updateWorkflowState);
-router.delete("/workflow-states/:id", deleteWorkflowState);
+router.patch("/states/:id", validateUpdateState, updateWorkflowState);
+router.delete("/states/:id", deleteWorkflowState);
 
 // Workflow Transitions
 router.get("/:id/transitions", listWorkflowTransitions);
@@ -48,13 +52,15 @@ router.post("/:id/transitions",
   createWorkflowTransition,
 );
 router.patch(
-  "/workflow-transitions/:id",
+  "/transitions/:id",
   validateUpdateTransition,
   updateWorkflowTransition,
 );
-router.delete("/workflow-transitions/:id", deleteWorkflowTransition);
+router.delete("/transitions/:id", deleteWorkflowTransition);
 
-// // Applications & Audit
-// router.get("/applications", getApplications);
+// Workflow Assignments
+router.get("/:id/assignments", listWorkflowAssignments);
+router.post("/:id/assignments", validateAddAssignment, addWorkflowAssignment);
+router.delete("/:id/assignments/:assignmentId", removeWorkflowAssignment);
 
 module.exports = router;

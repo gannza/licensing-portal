@@ -10,7 +10,6 @@ const createWorkflowSchema = Joi.object({
 const createStateSchema = Joi.object({
   key: Joi.string().min(1).max(100).uppercase().required(),
   label: Joi.string().min(1).max(200).required(),
-  description: Joi.string().allow('', null),
   is_initial: Joi.boolean().default(false),
   is_terminal: Joi.boolean().default(false),
   display_order: Joi.number().integer().min(0).default(0),
@@ -49,11 +48,19 @@ const updateTransitionSchema = Joi.object({
   label: Joi.string().allow('', null),
 });
 
+const addAssignmentSchema = Joi.object({
+  user_id: Joi.string().uuid().required(),
+  role: Joi.string()
+    .valid('INTAKE_OFFICER', 'REVIEWER', 'LEGAL_OFFICER', 'FINANCIAL_OFFICER', 'APPROVER')
+    .required(),
+});
+
 module.exports = {
     validateCreateWorkflow: validate(createWorkflowSchema),
     validateCreateState: validate(createStateSchema),
     validateUpdateWorkflow: validate(updateWorkflowSchema),
     validateUpdateState: validate(updateStateSchema),
-     validateCreateTransition: validate(createTransitionSchema),
-     validateUpdateTransition: validate(updateTransitionSchema)
+    validateCreateTransition: validate(createTransitionSchema),
+    validateUpdateTransition: validate(updateTransitionSchema),
+    validateAddAssignment: validate(addAssignmentSchema),
 }

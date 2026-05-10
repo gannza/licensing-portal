@@ -74,8 +74,9 @@ async function updateUserStatus(user_id, is_active, admin_id) {
 
 async function listUsers(page = 1, limit = 20) {
   const result = await userRepo.findAll({ page, limit });
+  const users= result.rows.map(({ password_hash, ...u }) => u);
   return {
-    data: result.rows.map(({ password_hash, ...u }) => u),
+    data: users,
     pagination: { page, limit, total: result.total },
   };
 }

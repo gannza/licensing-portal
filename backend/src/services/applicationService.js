@@ -16,7 +16,6 @@ const {
   UnprocessableError,
   ForbiddenError,
 } = require("../utils/errors");
-const { activeStates } = require("../constant");
 
 async function createApplication(applicant_id, application_type_id) {
   const workflow = await workflowRepo.findWorkflowByTypeId(application_type_id);
@@ -80,6 +79,12 @@ async function performTransition(
     }
   }
 
+  // REQUEST_INFO on a SUBMITTED application sends it back for more info
+  const effectiveToState =
+    decisionType === "REQUEST_INFO" && application.current_state === "SUBMITTED"
+      ? "PENDING_INFORMATION"
+      : toState;
+
   return db.transaction(async (trx) => {
     let newReviewedBy = application.reviewed_by;
     if (!newReviewedBy && actingUser.system_role === "STAFF") {
@@ -89,7 +94,7 @@ async function performTransition(
     const rowsUpdated = await trx("applications")
       .where({ id: application_id, version: application.version })
       .update({
-        current_state: toState,
+        current_state: effectiveToState,
         version: db.raw("version + 1"),
         reviewed_by: newReviewedBy,
         updated_at: db.fn.now(),
@@ -134,7 +139,7 @@ async function performTransition(
           ? "STAGE_DECISION"
           : "STATE_TRANSITION",
         from_state: application.current_state,
-        to_state: toState,
+        to_state: effectiveToState,
         metadata: {
           version: application.version + 1,
           decision_type: decisionType,
@@ -228,7 +233,7 @@ async function getById(application_id, user_id, system_role) {
     id: user_id,
     system_role,
   });
-  const docs = await documentRepo.findAllForApplication(
+  const docs = await documentRepo.findAllDocumentsForApplication(
     app.id,
     app.current_submission_cycle,
   );
@@ -241,13 +246,13 @@ async function getById(application_id, user_id, system_role) {
   }
 }
 
-async function getList(page = 1, limit = 20, user_id, system_role) {
+async function getList(page = 1, limit = 20, user_id, system_role, state, workflow_id) {
   if (system_role === "ADMIN") {
     const result = await getAllApplications(
       page,
       limit,
-      req.query.state,
-      req.query.workflow_id,
+      state,
+      workflow_id,
     );
     return result;
   }
@@ -271,9 +276,11 @@ async function getList(page = 1, limit = 20, user_id, system_role) {
 
     const allApps = [];
     for (const { workflow_id } of userRoles) {
-      const apps = await applicationRepo.findByWorkflowRole(
+      const activeStates = await workflowRepo.findActiveStates(workflow_id);
+      const activeStateKeys = activeStates.map((s) => s.key);
+      const apps = await applicationRepo.findStaffApplications(
         workflow_id,
-        activeStates,
+        activeStateKeys,
         { page: 1, limit: 100 },
       );
       allApps.push(...apps.rows);

@@ -13,9 +13,8 @@ async function findLatestForCycle(application_id, requirement_key, submission_cy
     .first();
 }
 
-async function findAllForApplication(application_id, submission_cycle) {
+async function findAllDocumentsForApplication(application_id) {
   const query =  db('application_documents').where({ application_id }).orderBy('uploaded_at', 'desc');
-  if (submission_cycle !== undefined) query.where({ submission_cycle });
   return query;
 }
 
@@ -67,4 +66,4 @@ async function findDocRequirementByTypeIdKey(application_type_id, key) {
     }).first();
 }
 
-module.exports = { create, findLatestForCycle, findAllForApplication, findHistory, markSuperseded, findById, findDocumentRequirementById, createDocumentRequirement, updateDocumentRequirement, deleteDocumentRequirement, findDocumentRequirementByApplicationTypeId, findDocRequirementByTypeIdKey  };
+module.exports = { create, findLatestForCycle, findAllDocumentsForApplication, findHistory, markSuperseded, findById, findDocumentRequirementById, createDocumentRequirement, updateDocumentRequirement, deleteDocumentRequirement, findDocumentRequirementByApplicationTypeId, findDocRequirementByTypeIdKey  };

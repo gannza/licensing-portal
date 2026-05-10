@@ -2,7 +2,7 @@ const { v4: uuidv4 } = require('uuid');
 const stageDecisionRepo = require('../repositories/stageDecisionRepo');
 const { ValidationError } = require('../utils/errors');
 
-const VALID_DECISION_TYPES = ['APPROVED_STAGE', 'REQUEST_INFO', 'ESCALATED'];
+const VALID_DECISION_TYPES = ['APPROVED_STAGE', 'REQUEST_INFO'];
 
 async function createDecision({ application_id, workflow_state_key, reviewed_by, decision_type, decision_note, submission_cycle }, trx) {
   if (!VALID_DECISION_TYPES.includes(decision_type)) {

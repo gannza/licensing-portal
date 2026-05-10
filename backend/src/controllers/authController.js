@@ -29,6 +29,8 @@ async function login(req, res, next) {
 async function refresh(req, res, next) {
   const token = req.cookies.refresh_token;
   const user = await authService.refresh(token);
+
+  authService.setAuthCookies(res, user);
   res.json({ success: true });
 }
 

@@ -8,6 +8,6 @@ const router = express.Router();
 
 router.use(authenticate, requireRole("ADMIN"));
 
-router.get("/audit-logs", getAuditLogs);
+router.get("/logs", getAuditLogs);
 
 module.exports = router;

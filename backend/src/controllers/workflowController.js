@@ -1,10 +1,12 @@
 const workflowService = require("../services/workflowService");
+const userRepo = require("../repositories/userRepo");
 
 // Workflows
 
 async function getWorkflows(req, res, next) {
   try {
-    const workflows = await workflowService.getWorkflows();
+    const application_type_id = req.query.application_type_id || null;
+    const workflows = await workflowService.getWorkflows(application_type_id);
     res.json({ success: true, data: workflows });
   } catch (err) {
     next(err);
@@ -14,6 +16,8 @@ async function getWorkflows(req, res, next) {
 async function createWorkflow(req, res, next) {
   try {
     const workflow = await workflowService.createWorkflow(req.body);
+
+    
     res.status(201).json({ success: true, data: workflow });
   } catch (err) {
     next(err);
@@ -54,10 +58,7 @@ async function listWorkflowStates(req, res, next) {
 
 async function createWorkflowState(req, res, next) {
   try {
-    const state = await workflowService.createWorkflowState({
-      ...req.body,
-      workflow_id: req.params.id,
-    });
+    const state = await workflowService.createWorkflowState(req.body, req.params.id);
     res.status(201).json({ success: true, data: state });
   } catch (err) {
     next(err);
@@ -100,10 +101,7 @@ async function listWorkflowTransitions(req, res, next) {
 
 async function createWorkflowTransition(req, res, next) {
   try {
-    const transition = await workflowService.createWorkflowTransition({
-      ...req.body,
-      workflow_id: req.params.id,
-    });
+    const transition = await workflowService.createWorkflowTransition( req.params.id, req.body);
     res.status(201).json({ success: true, data: transition });
   } catch (err) {
     next(err);
@@ -131,6 +129,43 @@ async function deleteWorkflowTransition(req, res, next) {
   }
 }
 
+// Workflow Assignments
+
+async function listWorkflowAssignments(req, res, next) {
+  try {
+    const assignments = await userRepo.getWorkflowAssignments(req.params.id);
+    res.json({ success: true, data: assignments });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function addWorkflowAssignment(req, res, next) {
+  try {
+    const { user_id, role } = req.body;
+    await userRepo.assignWorkflowRoles([{
+      user_id,
+      workflow_id: req.params.id,
+      role,
+      assigned_by: req.user.id,
+      assigned_at: new Date(),
+    }]);
+    const assignments = await userRepo.getWorkflowAssignments(req.params.id);
+    res.status(201).json({ success: true, data: assignments });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function removeWorkflowAssignment(req, res, next) {
+  try {
+    await userRepo.removeWorkflowAssignment(req.params.assignmentId);
+    res.json({ success: true });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   // Workflows
   getWorkflows,
@@ -147,4 +182,8 @@ module.exports = {
   createWorkflowTransition,
   updateWorkflowTransition,
   deleteWorkflowTransition,
+  // Workflow Assignments
+  listWorkflowAssignments,
+  addWorkflowAssignment,
+  removeWorkflowAssignment,
 };

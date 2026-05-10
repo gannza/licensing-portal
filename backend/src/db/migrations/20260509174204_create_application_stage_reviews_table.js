@@ -6,7 +6,7 @@ exports.up = function (knex) {
     t.text('workflow_state_key').notNullable();
     t.uuid('reviewed_by').notNullable().references('id').inTable('users');
     t.text('decision_type').notNullable()
-      .checkIn(['APPROVED_STAGE','REQUEST_INFO','ESCALATED'], 'asr_decision_type_check');
+      .checkIn(['APPROVED_STAGE','REQUEST_INFO'], 'asr_decision_type_check');
     t.text('decision_note').notNullable();
     t.integer('submission_cycle').notNullable().defaultTo(1);
     t.timestamp('created_at', { useTz: true }).notNullable().defaultTo(knex.fn.now());

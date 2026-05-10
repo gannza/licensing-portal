@@ -62,4 +62,24 @@ async function getUserRoles(user_id) {
 }
   
 
-module.exports = { findByEmail, findById, create, updateLastLogin, updatePassword, findAll, updateStatus, getUserWorkflowRoles, getUserRoles, assignWorkflowRoles };
+async function getWorkflowAssignments(workflow_id) {
+  return await db('user_workflow_roles')
+    .where('user_workflow_roles.workflow_id', workflow_id)
+    .join('users', 'user_workflow_roles.user_id', 'users.id')
+    .select(
+      'user_workflow_roles.id',
+      'user_workflow_roles.user_id',
+      'user_workflow_roles.workflow_id',
+      'user_workflow_roles.role',
+      'user_workflow_roles.assigned_at',
+      'users.full_name',
+      'users.email',
+    )
+    .orderBy('users.full_name');
+}
+
+async function removeWorkflowAssignment(id) {
+  await db('user_workflow_roles').where({ id }).delete();
+}
+
+module.exports = { findByEmail, findById, create, updateLastLogin, updatePassword, findAll, updateStatus, getUserWorkflowRoles, getUserRoles, assignWorkflowRoles, getWorkflowAssignments, removeWorkflowAssignment };

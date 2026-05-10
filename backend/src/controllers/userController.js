@@ -14,7 +14,7 @@ async function listUsers(req, res, next) {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const result = await userService.listUsers(page, limit);
-    res.json({ success: true, result });
+    res.json({ success: true, ...result });
   } catch (err) {
     next(err);
   }

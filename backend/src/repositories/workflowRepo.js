@@ -4,6 +4,10 @@ async function findWorkflowByTypeId(application_type_id) {
   return await db('workflows').where({ application_type_id }).first();
 }
 
+async function findActiveStates(workflow_id) {
+  return await db('workflow_states').where({ workflow_id }).orderBy('display_order');
+}
+
 async function findTransitions(workflow_id, from_state_key) {
   return await db('workflow_transitions').where({ workflow_id, from_state_key });
 }
@@ -111,6 +115,7 @@ async function deleteWorkflowTransition(id) {
 module.exports = {
   // Existing
   findWorkflowByTypeId,
+  findActiveStates,
   findTransitions,
   findTransition,
   findState,

@@ -1,15 +1,91 @@
 const workflowRepo = require("../repositories/workflowRepo");
 const { ValidationError, NotFoundError } = require("../utils/errors");
 
-async function getWorkflows(applicationTypeTd) {
-  const workflows = applicationTypeTd
-    ? await workflowRepo.findWorkflowsByTypeId(applicationTypeTd)
+async function getWorkflows(applicationTypeId) {
+  const workflows = applicationTypeId
+    ? await workflowRepo.findWorkflowsByTypeId(applicationTypeId)
     : await workflowRepo.findAllWorkflows();
   return workflows;
 }
 
 async function createWorkflow(body) {
-  return await workflowRepo.createWorkflow(body);
+  const workflow = await workflowRepo.createWorkflow(body);
+
+  const state = await workflowRepo.createWorkflowState({
+    key: "DRAFT",
+    label: "Draft",
+    is_initial: true,
+    is_terminal: false,
+    display_order: 0,
+    workflow_id: workflow.id,
+  });
+
+  const state2 = await workflowRepo.createWorkflowState({
+    key: "SUBMITTED",
+    label: "Submitted",
+    is_initial: false,
+    is_terminal: false,
+    display_order: 1,
+    workflow_id: workflow.id,
+  });
+  
+    const state3 = await workflowRepo.createWorkflowState({
+    key: "UNDER_REVIEW",
+    label: "Under Review",
+    is_initial: false,
+    is_terminal: false,
+    display_order: 2,
+    workflow_id: workflow.id,
+  });
+
+   const state4 = await workflowRepo.createWorkflowState({
+    key: "PENDING_INFORMATION",
+    label: "Pending Information",
+    is_initial: false,
+    is_terminal: false,
+    display_order: 3,
+    workflow_id: workflow.id,
+  });
+
+  const state5 = await workflowRepo.createWorkflowState({
+    key: "PENDING_APPROVAL",
+    label: "Pending Approval",
+    is_initial: false,
+    is_terminal: false,
+    display_order: 4,
+    workflow_id: workflow.id,
+  });
+
+    const state6 = await workflowRepo.createWorkflowState({
+    key: "APPROVED",
+    label: "Approved",
+    is_initial: false,
+    is_terminal: true,
+    is_approved: true,
+    display_order: 5,
+    workflow_id: workflow.id,
+  });
+
+   const state7 = await workflowRepo.createWorkflowState({
+    key: "REJECTED",
+    label: "Rejected",
+    is_initial: false,
+    is_terminal: true,
+    is_approved: false,
+    display_order: 6,
+    workflow_id: workflow.id,
+  });
+
+  await workflowRepo.createWorkflowTransition({
+    from_state_key: state.key,
+    to_state_key: state2.key,
+    required_role: "APPLICANT",
+    requires_decision: false,
+    label: "Submit Application",
+    workflow_id: workflow.id,
+  });
+
+  return workflow;
 }
 
 async function updateWorkflow(id, body) {
@@ -30,7 +106,7 @@ async function listWorkflowStates(workflowId) {
   return states;
 }
 
-async function createWorkflowState(workflowId, body) {
+async function createWorkflowState(body, workflowId) {
   const workflow = await workflowRepo.findWorkflowById(workflowId);
   if (!workflow) throw new NotFoundError("Workflow");
   const state = await workflowRepo.createWorkflowState({

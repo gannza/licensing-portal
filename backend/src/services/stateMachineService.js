@@ -50,6 +50,7 @@ async function getAvailableTransitions(application, actingUser) {
       } else if (!isApplicant) {
         const userRoles = await workflowRepo.findUserWorkflowRoles(actingUser.id, application.workflow_id);
         const toStateRecord = await workflowRepo.findState(application.workflow_id, t.to_state_key);
+       
         const isTerminal = toStateRecord && toStateRecord.is_terminal;
         if (userRoles.includes(t.required_role) && !(isTerminal && application.reviewed_by === actingUser.id)) {
           available.push(t);

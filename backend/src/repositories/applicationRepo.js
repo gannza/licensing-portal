@@ -1,4 +1,3 @@
-const { activeStates } = require('../constant');
 const db = require('../db/knex');
 
 async function create(data) {
@@ -37,14 +36,14 @@ async function findByApplicant(applicant_id, { page = 1, limit = 20 } = {}) {
       .select('applications.*', 'application_types.name as type_name', 'application_types.code as type_code')
       .join('application_types', 'application_types.id', 'applications.application_type_id')
       .where('applications.applicant_id', applicant_id)
-      .orderBy('applications.created_at', 'desc')
+      .orderBy('applications.version', 'desc')
       .limit(limit).offset(offset),
     db('applications').where({ applicant_id }).count('id as count'),
   ]);
   return { rows, total: parseInt(count) };
 }
 
-async function findByWorkflowRole(workflow_id, states, { page = 1, limit = 20 } = {}) {
+async function findStaffApplications(workflow_id, states, { page = 1, limit = 20 } = {}) {
   const offset = (page - 1) * limit;
   const [rows, [{ count }]] = await Promise.all([
     db('applications')
@@ -109,4 +108,4 @@ async function incrementSubmissionCycle(id, trx) {
     .update({ current_submission_cycle: db.raw('current_submission_cycle + 1'), updated_at: db.fn.now() });
 }
 
-module.exports = { create, findById, findByIdWithDetails, findByApplicant, findByWorkflowRole, findAll, transitionState, incrementSubmissionCycle };
+module.exports = { create, findById, findByIdWithDetails, findByApplicant, findStaffApplications, findAll, transitionState, incrementSubmissionCycle };

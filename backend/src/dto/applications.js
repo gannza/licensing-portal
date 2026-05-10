@@ -7,7 +7,7 @@ const createSchema = Joi.object({
 
 const transitionSchema = Joi.object({
   toState: Joi.string().required(),
-  decisionType: Joi.string().valid('APPROVED_STAGE', 'REQUEST_INFO', 'ESCALATED').optional(),
+  decisionType: Joi.string().valid('APPROVED_STAGE', 'REQUEST_INFO').optional(),
   decisionNote: Joi.string().allow('', null),
 });
 

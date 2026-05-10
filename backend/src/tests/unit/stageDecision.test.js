@@ -63,7 +63,7 @@ describe('stageDecisionService.createDecision', () => {
 
   it('throws ValidationError and names the accepted types', async () => {
     await expect(createDecision({ ...baseInput, decision_type: 'BAD_TYPE' }))
-      .rejects.toThrow(/APPROVED_STAGE.*REQUEST_INFO.*ESCALATED/);
+      .rejects.toThrow(/APPROVED_STAGE.*REQUEST_INFO/);
   });
 
   // valid insertions
@@ -76,12 +76,6 @@ describe('stageDecisionService.createDecision', () => {
 
   it('calls repo.create and returns the record for REQUEST_INFO', async () => {
     await expect(createDecision({ ...baseInput, decision_type: 'REQUEST_INFO' }))
-      .resolves.toBe(savedRow);
-    expect(stageDecisionRepo.create).toHaveBeenCalledTimes(1);
-  });
-
-  it('calls repo.create and returns the record for ESCALATED', async () => {
-    await expect(createDecision({ ...baseInput, decision_type: 'ESCALATED' }))
       .resolves.toBe(savedRow);
     expect(stageDecisionRepo.create).toHaveBeenCalledTimes(1);
   });

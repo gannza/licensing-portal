@@ -22,6 +22,8 @@ async function list(req, res, next) {
       limit,
       req.user.id,
       req.user.system_role,
+      req.query.state,
+      req.query.workflow_id,
     );
     res.json({ success: true, ...result });
   } catch (err) {

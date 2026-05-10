@@ -26,8 +26,6 @@ const { verifyPassword } = require('../../utils/password');
 const ACCESS_SECRET  = process.env.JWT_SECRET;
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
-// ─── Fixtures ────────────────────────────────────────────────────────────────
-
 const mockUser = {
   id:                   'user-uuid-123',
   email:                'test@bnr.rw',
@@ -39,7 +37,7 @@ const mockUser = {
   last_login_at:        null,
 };
 
-// ─── POST /api/auth/login ─────────────────────────────────────────────────────
+// POST /api/auth/login
 
 describe('POST /api/auth/login', () => {
   beforeEach(() => {

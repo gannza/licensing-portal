@@ -19,7 +19,7 @@ async function upload(req, res, next) {
     const doc = await documentService.upload(
       req.file,
       req.params.id,
-      req.requirementKey,
+      req.requirement_key,
       req.user.id,
       req.user.system_role,
     );
@@ -35,7 +35,7 @@ async function getHistory(req, res, next) {
       req.params.id,
       req.user.id,
       req.user.system_role,
-      req.params.requirementKey,
+      req.params.requirement_key,
     );
     res.json({ success: true, data: history });
   } catch (err) {

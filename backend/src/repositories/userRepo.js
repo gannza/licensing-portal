@@ -1,11 +1,11 @@
 const db = require('../db/knex');
 
 async function findByEmail(email) {
-  return db('users').where({ email: email.toLowerCase() }).first();
+  return await db('users').where({ email: email.toLowerCase() }).first();
 }
 
 async function findById(id) {
-  return db('users').where({ id }).first();
+  return await db('users').where({ id }).first();
 }
 
 async function create(data, trx) {
@@ -23,11 +23,11 @@ async function assignWorkflowRoles(roleRows, trx) {
 }
 
 async function updateLastLogin(id) {
-  return db('users').where({ id }).update({ last_login_at: db.fn.now(), updated_at: db.fn.now() });
+  return await db('users').where({ id }).update({ last_login_at: db.fn.now(), updated_at: db.fn.now() });
 }
 
 async function updatePassword(id, password_hash) {
-  return db('users').where({ id }).update({ password_hash, must_change_password: false, updated_at: db.fn.now() });
+  return await db('users').where({ id }).update({ password_hash, must_change_password: false, updated_at: db.fn.now() });
 }
 
 async function findAll({ page = 1, limit = 20 } = {}) {

@@ -6,7 +6,7 @@ async function create(data, trx) {
 }
 
 async function findLatestForCycle(application_id, requirement_key, submission_cycle) {
-  return db('application_documents')
+  return await db('application_documents')
     .where({ application_id, requirement_key, submission_cycle })
     .whereNull('superseded_by')
     .orderBy('uploaded_at', 'desc')
@@ -14,30 +14,30 @@ async function findLatestForCycle(application_id, requirement_key, submission_cy
 }
 
 async function findAllForApplication(application_id, submission_cycle) {
-  const query = db('application_documents').where({ application_id }).orderBy('uploaded_at', 'desc');
+  const query =  db('application_documents').where({ application_id }).orderBy('uploaded_at', 'desc');
   if (submission_cycle !== undefined) query.where({ submission_cycle });
   return query;
 }
 
 async function findHistory(application_id, requirement_key) {
-  return db('application_documents')
+  return await db('application_documents')
     .where({ application_id, requirement_key })
     .orderBy('submission_cycle', 'desc')
     .orderBy('uploaded_at', 'desc');
 }
 
 async function markSuperseded(id, superseded_by, trx) {
-  return (trx || db)('application_documents').where({ id }).update({ superseded_by });
+  return await (trx || db)('application_documents').where({ id }).update({ superseded_by });
 }
 
 async function findById(id) {
-  return db('application_documents').where({ id }).first();
+  return await db('application_documents').where({ id }).first();
 }
 
 // Admin: Document Requirements
 
 async function findDocumentRequirementById(id) {
-  return db('document_requirements').where({ id }).first();
+  return await db('document_requirements').where({ id }).first();
 }
 
 async function createDocumentRequirement(data) {
@@ -51,7 +51,7 @@ async function updateDocumentRequirement(id, data) {
 }
 
 async function deleteDocumentRequirement(id) {
-  await db('document_requirements').where({ id }).delete();
+  await await db('document_requirements').where({ id }).delete();
 }
 
 async function findDocumentRequirementByApplicationTypeId(application_type_id) {
@@ -60,5 +60,11 @@ async function findDocumentRequirementByApplicationTypeId(application_type_id) {
     });
 }
 
+async function findDocRequirementByTypeIdKey(application_type_id, key) {
+ return await db("document_requirements").where({
+      application_type_id: application_type_id,
+      key: key
+    }).first();
+}
 
-module.exports = { create, findLatestForCycle, findAllForApplication, findHistory, markSuperseded, findById, findDocumentRequirementById, createDocumentRequirement, updateDocumentRequirement, deleteDocumentRequirement, findDocumentRequirementByApplicationTypeId  };
+module.exports = { create, findLatestForCycle, findAllForApplication, findHistory, markSuperseded, findById, findDocumentRequirementById, createDocumentRequirement, updateDocumentRequirement, deleteDocumentRequirement, findDocumentRequirementByApplicationTypeId, findDocRequirementByTypeIdKey  };

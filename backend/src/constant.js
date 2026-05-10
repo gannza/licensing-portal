@@ -1,4 +1,4 @@
-export const activeStates = [
+ const activeStates = [
   "SUBMITTED",
   "UNDER_INITIAL_REVIEW",
   "PENDING_INFORMATION",
@@ -9,3 +9,5 @@ export const activeStates = [
   "APPROVED",
   "REJECTED",
 ];
+
+module.exports = { activeStates };

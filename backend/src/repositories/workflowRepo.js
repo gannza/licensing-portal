@@ -1,31 +1,31 @@
 const db = require('../db/knex');
 
 async function findWorkflowByTypeId(application_type_id) {
-  return db('workflows').where({ application_type_id }).first();
+  return await db('workflows').where({ application_type_id }).first();
 }
 
 async function findTransitions(workflow_id, from_state_key) {
-  return db('workflow_transitions').where({ workflow_id, from_state_key });
+  return await db('workflow_transitions').where({ workflow_id, from_state_key });
 }
 
 async function findTransition(workflow_id, from_state_key, to_state_key) {
-  return db('workflow_transitions').where({ workflow_id, from_state_key, to_state_key }).first();
+  return await db('workflow_transitions').where({ workflow_id, from_state_key, to_state_key }).first();
 }
 
 async function findState(workflow_id, key) {
-  return db('workflow_states').where({ workflow_id, key }).first();
+  return await db('workflow_states').where({ workflow_id, key }).first();
 }
 
 async function findInitialState(workflow_id) {
-  return db('workflow_states').where({ workflow_id, is_initial: true }).first();
+  return await db('workflow_states').where({ workflow_id, is_initial: true }).first();
 }
 
 async function findUserWorkflowRoles(user_id, workflow_id) {
-  return db('user_workflow_roles').where({ user_id, workflow_id }).pluck('role');
+  return await db('user_workflow_roles').where({ user_id, workflow_id }).pluck('role');
 }
 
 async function findAllWorkflows() {
-  return db('workflows')
+  return await db('workflows')
     .select('workflows.*', 'application_types.name as type_name', 'application_types.code as type_code')
     .join('application_types', 'application_types.id', 'workflows.application_type_id');
 }
@@ -33,7 +33,7 @@ async function findAllWorkflows() {
 
 
 async function findWorkflowsByTypeId(application_type_id) {
-  return db('workflows')
+  return await db('workflows')
     .where({ application_type_id })
     .select('workflows.*', 'application_types.name as type_name', 'application_types.code as type_code')
     .join('application_types', 'application_types.id', 'workflows.application_type_id')
@@ -41,7 +41,7 @@ async function findWorkflowsByTypeId(application_type_id) {
 }
 
 async function findWorkflowById(id) {
-  return db('workflows').where({ id }).first();
+  return await db('workflows').where({ id }).first();
 }
 
 async function createWorkflow(data) {
@@ -61,11 +61,11 @@ async function deleteWorkflow(id) {
 // Admin: Workflow States
 
 async function findWorkflowStates(workflow_id) {
-  return db('workflow_states').where({ workflow_id }).orderBy('display_order');
+  return await db('workflow_states').where({ workflow_id }).orderBy('display_order');
 }
 
 async function findWorkflowStateById(id) {
-  return db('workflow_states').where({ id }).first();
+  return await db('workflow_states').where({ id }).first();
 }
 
 async function createWorkflowState(data) {
@@ -83,13 +83,13 @@ async function deleteWorkflowState(id) {
 }
 
 async function findAllTransitions(workflow_id) {
-  return db('workflow_transitions')
+  return await db('workflow_transitions')
     .where({ workflow_id })
     .orderBy(['from_state_key', 'to_state_key']);
 }
 
 async function findTransitionById(id) {
-  return db('workflow_transitions').where({ id }).first();
+  return await db('workflow_transitions').where({ id }).first();
 }
 
 async function createWorkflowTransition(data) {
@@ -103,7 +103,7 @@ async function updateWorkflowTransition(id, data) {
 }
 
 async function deleteWorkflowTransition(id) {
-  await db('workflow_transitions').where({ id }).delete();
+  await await db('workflow_transitions').where({ id }).delete();
 }
 
 

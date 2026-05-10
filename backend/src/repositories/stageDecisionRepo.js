@@ -6,7 +6,7 @@ async function create(data, trx) {
 }
 
 async function findByApplication(application_id) {
-  return db('application_stage_reviews')
+  return await db('application_stage_reviews')
     .select('application_stage_reviews.*', 'users.full_name as reviewer_name', 'users.email as reviewer_email')
     .join('users', 'users.id', 'application_stage_reviews.reviewed_by')
     .where({ application_id })

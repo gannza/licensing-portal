@@ -48,11 +48,12 @@ const updateTransitionSchema = Joi.object({
   requires_decision: Joi.boolean(),
   label: Joi.string().allow('', null),
 });
+
 module.exports = {
     validateCreateWorkflow: validate(createWorkflowSchema),
     validateCreateState: validate(createStateSchema),
     validateUpdateWorkflow: validate(updateWorkflowSchema),
     validateUpdateState: validate(updateStateSchema),
      validateCreateTransition: validate(createTransitionSchema),
-     validateUpdateTransition: validate(updateTransitionSchema),
+     validateUpdateTransition: validate(updateTransitionSchema)
 }

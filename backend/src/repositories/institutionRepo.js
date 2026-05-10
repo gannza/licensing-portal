@@ -6,11 +6,11 @@ async function create(data) {
 }
 
 async function findByUserId(applicant_user_id) {
-  return db('institutions').where({ applicant_user_id }).first();
+  return await db('institutions').where({ applicant_user_id }).first();
 }
 
 async function findByRegistrationNumber(registration_number) {
-  return db('institutions').where({ registration_number }).first();
+  return await db('institutions').where({ registration_number }).first();
 }
 
 module.exports = { create, findByUserId, findByRegistrationNumber };

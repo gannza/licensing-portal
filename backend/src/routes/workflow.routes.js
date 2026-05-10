@@ -30,21 +30,20 @@ const router = express.Router();
 router.use(authenticate, requireRole("ADMIN"));
 
 // Workflows
-router.get("/workflows", getWorkflows);
-router.post("/workflows", validateCreateWorkflow, createWorkflow);
-router.patch("/workflows/:id", validateUpdateWorkflow, updateWorkflow);
-router.delete("/workflows/:id", deleteWorkflow);
+router.get("/", getWorkflows);
+router.post("/", validateCreateWorkflow, createWorkflow);
+router.patch("/:id", validateUpdateWorkflow, updateWorkflow);
+router.delete("/:id", deleteWorkflow);
 
 // Workflow States
-router.get("/workflows/:id/states", listWorkflowStates);
-router.post("/workflows/:id/states", validateCreateState, createWorkflowState);
+router.get("/:id/states", listWorkflowStates);
+router.post("/:id/states", validateCreateState, createWorkflowState);
 router.patch("/workflow-states/:id", validateUpdateState, updateWorkflowState);
 router.delete("/workflow-states/:id", deleteWorkflowState);
 
 // Workflow Transitions
-router.get("/workflows/:id/transitions", listWorkflowTransitions);
-router.post(
-  "/workflows/:id/transitions",
+router.get("/:id/transitions", listWorkflowTransitions);
+router.post("/:id/transitions",
   validateCreateTransition,
   createWorkflowTransition,
 );

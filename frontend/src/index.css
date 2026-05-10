@@ -11,6 +11,7 @@
   --secondary: #ebcf8a;
   --special: #5366c2;
 }
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -21,4 +22,22 @@ body {
   font-family: var(--font);
   color: var(--color);
   background-color: #f8f7f4;
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-brand-primary text-brand-base font-semibold px-4 py-2 rounded-lg hover:bg-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply bg-white text-brand-base border border-brand-base font-semibold px-4 py-2 rounded-lg hover:bg-brand-secondary transition-colors disabled:opacity-50;
+  }
+  .btn-danger {
+    @apply bg-red-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50;
+  }
+  .input-field {
+    @apply w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent;
+  }
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6;
+  }
 }

@@ -19,7 +19,7 @@ async function upload(req, res, next) {
     const doc = await documentService.upload(
       req.file,
       req.params.id,
-      req.requirement_key,
+      req.params.requirement_key,
       req.user.id,
       req.user.system_role,
     );

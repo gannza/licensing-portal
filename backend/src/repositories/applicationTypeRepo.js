@@ -38,7 +38,7 @@ async function updateApplicationType(id, data) {
 }
 
 async function deleteApplicationType(id) {
-  await db('application_types').where({ id }).delete();
+  await await db('application_types').where({ id }).delete();
 }
 
 

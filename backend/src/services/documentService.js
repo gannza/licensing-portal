@@ -69,9 +69,7 @@ async function upload(file, application_id, requirement_key, uploaded_by,system_
       throw new UnprocessableError('Documents can only be uploaded when the application is in DRAFT or PENDING_INFORMATION state');
     }
 
-    const requirement = await db('document_requirements')
-      .where({ application_type_id: app.application_type_id, key: requirement_key })
-      .first();
+    const requirement = await documentRepo.findDocRequirementByTypeIdKey(app.application_type_id, requirement_key);
 
     if (!requirement) throw new NotFoundError('Document requirement');
 
@@ -104,7 +102,7 @@ async function list(application_id, user_id, system_role, submission_cycle) {
     }
 
     const cycle = parseInt(submission_cycle) || app.current_submission_cycle;
-    const docs = await documentService.getDocumentsForCycle(app.id, cycle);
+    const docs = await getDocumentsForCycle(app.id, cycle);
     return docs;
 }
 

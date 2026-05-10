@@ -16,6 +16,7 @@ const {
   UnprocessableError,
   ForbiddenError,
 } = require("../utils/errors");
+const { activeStates } = require("../constant");
 
 async function createApplication(applicant_id, application_type_id) {
   const workflow = await workflowRepo.findWorkflowByTypeId(application_type_id);

@@ -12,7 +12,7 @@ const {
 } = require("../controllers/applicationsController");
 const {
   validateCreateApplication,
-  validateCreateTransition,
+  validateTransition,
 } = require("../dto");
 
 const router = express.Router();
@@ -21,7 +21,7 @@ router.use(authenticate);
 router.post("/", requireRole("APPLICANT"), validateCreateApplication, create);
 router.get("/", list);
 router.get("/:id", getById);
-router.post("/:id/stage-decision", validateCreateTransition, stageDecision);
+router.post("/:id/stage-decision", validateTransition, stageDecision);
 router.get("/:id/timeline", getTimeline);
 router.get("/:id/stage-decisions", getStageDecisions);
 

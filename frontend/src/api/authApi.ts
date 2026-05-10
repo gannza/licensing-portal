@@ -36,7 +36,19 @@ export const authApi = baseApi.injectEndpoints({
     }),
     login: builder.mutation<{ success: boolean; data: LoginResponse }, LoginRequest>({
       query: (body) => ({ url: '/auth/login', method: 'POST', body }),
-      invalidatesTags: ['Me'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data: result } = await queryFulfilled;
+          if (result.data.user) {
+            dispatch(
+              authApi.util.upsertQueryData('getMe', undefined, {
+                success: true,
+                data: { user: result.data.user },
+              })
+            );
+          }
+        } catch {}
+      },
     }),
     logout: builder.mutation<void, void>({
       query: () => ({ url: '/auth/logout', method: 'POST' }),
@@ -47,7 +59,17 @@ export const authApi = baseApi.injectEndpoints({
     }),
     changePassword: builder.mutation<{ success: boolean; data: AuthResponse }, { current_password?: string; new_password: string }>({
       query: (body) => ({ url: '/auth/change-password', method: 'POST', body }),
-      invalidatesTags: ['Me'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data: result } = await queryFulfilled;
+          dispatch(
+            authApi.util.upsertQueryData('getMe', undefined, {
+              success: true,
+              data: { user: result.data.user },
+            })
+          );
+        } catch {}
+      },
     }),
   }),
 });

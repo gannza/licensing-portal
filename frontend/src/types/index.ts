@@ -1,6 +1,6 @@
 export type SystemRole = 'APPLICANT' | 'STAFF' | 'ADMIN';
 export type WorkflowRole = 'INTAKE_OFFICER' | 'REVIEWER' | 'LEGAL_OFFICER' | 'FINANCIAL_OFFICER' | 'APPROVER';
-export type DecisionType = 'APPROVED_STAGE' | 'REQUEST_INFO' | 'ESCALATED';
+export type DecisionType = 'APPROVED_STAGE' | 'REQUEST_INFO';
 
 export interface User {
   id: string;
@@ -136,6 +136,16 @@ export interface WorkflowState {
   is_terminal: boolean;
   is_initial: boolean;
   display_order: number;
+}
+
+export interface WorkflowAssignment {
+  id: string;
+  user_id: string;
+  workflow_id: string;
+  role: WorkflowRole;
+  assigned_at: string;
+  full_name: string;
+  email: string;
 }
 
 export interface UserWorkflowRole {

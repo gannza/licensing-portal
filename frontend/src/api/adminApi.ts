@@ -1,5 +1,5 @@
 import { baseApi } from './baseApi';
-import type { User, Workflow, WorkflowState, WorkflowTransition, Application, Pagination } from '../types';
+import type { User, Workflow, WorkflowState, WorkflowTransition, WorkflowAssignment, Application, Pagination } from '../types';
 
 interface CreateUserRequest {
   email: string;
@@ -109,11 +109,11 @@ export const adminApi = baseApi.injectEndpoints({
       invalidatesTags: (_r, _e, { workflow_id }) => [{ type: 'WorkflowState', id: workflow_id }],
     }),
     updateWorkflowState: builder.mutation<{ success: boolean; data: WorkflowState }, UpdateWorkflowStateRequest>({
-      query: ({ id, workflow_id: _w, ...body }) => ({ url: `/workflow-states/${id}`, method: 'PATCH', body }),
+      query: ({ id, workflow_id: _w, ...body }) => ({ url: `/workflows/states/${id}`, method: 'PATCH', body }),
       invalidatesTags: (_r, _e, { workflow_id }) => [{ type: 'WorkflowState', id: workflow_id }],
     }),
     deleteWorkflowState: builder.mutation<{ success: boolean }, { id: string; workflow_id: string }>({
-      query: ({ id }) => ({ url: `/workflow-states/${id}`, method: 'DELETE' }),
+      query: ({ id }) => ({ url: `/workflows/states/${id}`, method: 'DELETE' }),
       invalidatesTags: (_r, _e, { workflow_id }) => [{ type: 'WorkflowState', id: workflow_id }],
     }),
     // Workflow Transitions
@@ -126,12 +126,25 @@ export const adminApi = baseApi.injectEndpoints({
       invalidatesTags: (_r, _e, { workflow_id }) => [{ type: 'WorkflowTransition', id: workflow_id }],
     }),
     updateWorkflowTransition: builder.mutation<{ success: boolean; data: WorkflowTransition }, UpdateWorkflowTransitionRequest>({
-      query: ({ id, workflow_id: _w, ...body }) => ({ url: `/workflow-transitions/${id}`, method: 'PATCH', body }),
+      query: ({ id, workflow_id: _w, ...body }) => ({ url: `/workflows/transitions/${id}`, method: 'PATCH', body }),
       invalidatesTags: (_r, _e, { workflow_id }) => [{ type: 'WorkflowTransition', id: workflow_id }],
     }),
     deleteWorkflowTransition: builder.mutation<{ success: boolean }, { id: string; workflow_id: string }>({
-      query: ({ id }) => ({ url: `/workflow-transitions/${id}`, method: 'DELETE' }),
+      query: ({ id }) => ({ url: `/workflows/transitions/${id}`, method: 'DELETE' }),
       invalidatesTags: (_r, _e, { workflow_id }) => [{ type: 'WorkflowTransition', id: workflow_id }],
+    }),
+    // Workflow Assignments
+    getWorkflowAssignments: builder.query<{ success: boolean; data: WorkflowAssignment[] }, string>({
+      query: (workflowId) => `/workflows/${workflowId}/assignments`,
+      providesTags: (_r, _e, workflowId) => [{ type: 'User', id: `assignments-${workflowId}` }],
+    }),
+    addWorkflowAssignment: builder.mutation<{ success: boolean; data: WorkflowAssignment[] }, { workflow_id: string; user_id: string; role: string }>({
+      query: ({ workflow_id, ...body }) => ({ url: `/workflows/${workflow_id}/assignments`, method: 'POST', body }),
+      invalidatesTags: (_r, _e, { workflow_id }) => [{ type: 'User', id: `assignments-${workflow_id}` }],
+    }),
+    removeWorkflowAssignment: builder.mutation<{ success: boolean }, { workflow_id: string; assignment_id: string }>({
+      query: ({ workflow_id, assignment_id }) => ({ url: `/workflows/${workflow_id}/assignments/${assignment_id}`, method: 'DELETE' }),
+      invalidatesTags: (_r, _e, { workflow_id }) => [{ type: 'User', id: `assignments-${workflow_id}` }],
     }),
     // Applications & Audit
     getAdminApplications: builder.query<{ success: boolean; data: Application[]; pagination: Pagination }, { page?: number; state?: string }>({
@@ -139,7 +152,7 @@ export const adminApi = baseApi.injectEndpoints({
       providesTags: ['Application'],
     }),
     getAuditLogs: builder.query<{ success: boolean; data: any[]; pagination: Pagination }, { page?: number }>({
-      query: ({ page = 1 } = {}) => `/audit-logs?page=${page}`,
+      query: ({ page = 1 } = {}) => `/audit/logs?page=${page}`,
       providesTags: ['AuditLog'],
     }),
   }),
@@ -163,6 +176,9 @@ export const {
   useCreateWorkflowTransitionMutation,
   useUpdateWorkflowTransitionMutation,
   useDeleteWorkflowTransitionMutation,
+  useGetWorkflowAssignmentsQuery,
+  useAddWorkflowAssignmentMutation,
+  useRemoveWorkflowAssignmentMutation,
   useGetAdminApplicationsQuery,
   useGetAuditLogsQuery,
 } = adminApi;

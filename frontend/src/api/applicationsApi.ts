@@ -3,7 +3,7 @@ import type { Application, TimelineEntry, WorkflowState, StageDecision, Paginati
 
 interface TransitionRequest {
   toState: string;
-  decisionType?: 'APPROVED_STAGE' | 'REQUEST_INFO' | 'ESCALATED';
+  decisionType?: 'APPROVED_STAGE' | 'REQUEST_INFO';
   decisionNote?: string;
 }
 

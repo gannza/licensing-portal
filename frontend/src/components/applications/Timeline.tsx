@@ -4,14 +4,12 @@ interface Props { entries: TimelineEntry[] }
 
 const decisionTypeLabel: Record<string, string> = {
   APPROVED_STAGE: 'Approved Stage',
-  REQUEST_INFO: 'Requested Information',
-  ESCALATED: 'Escalated',
+  REQUEST_INFO: 'Requested Information'
 };
 
 const decisionTypeColor: Record<string, string> = {
   APPROVED_STAGE: 'bg-green-100 text-green-700',
-  REQUEST_INFO: 'bg-orange-100 text-orange-700',
-  ESCALATED: 'bg-purple-100 text-purple-700',
+  REQUEST_INFO: 'bg-orange-100 text-orange-700'
 };
 
 export default function Timeline({ entries }: Props) {

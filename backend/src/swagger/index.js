@@ -1695,7 +1695,7 @@ const swaggerSpec = {
         },
       },
     },
-    "/api/workflow-states/{id}": {
+    "/api/workflows/states/{id}": {
       patch: {
         tags: ["Workflows"],
         summary: "Update workflow state",
@@ -1816,7 +1816,7 @@ const swaggerSpec = {
         },
       },
     },
-    "/api/workflows/workflow-transitions/{id}": {
+    "/api/workflows/transitions/{id}": {
       patch: {
         tags: ["Workflows"],
         summary: "Update workflow transition",

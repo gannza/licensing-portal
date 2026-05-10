@@ -54,7 +54,7 @@ export default function ApplicationDetailApplicant() {
   };
 
   const uploadedDocs = docsData?.data || [];
-
+const companyName = import.meta.env.VITE_APP_COMPANY_NAME || 'National Bank of Rwanda';
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="card">
@@ -69,7 +69,7 @@ export default function ApplicationDetailApplicant() {
           <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
             <p className="text-sm font-medium text-amber-800">Action Required</p>
             <p className="text-sm text-amber-700 mt-0.5">
-              BNR has requested additional information. Please review the feedback below, upload the requested documents, and resubmit.
+              {companyName} has requested additional information. Please review the feedback below, upload the requested documents, and resubmit.
             </p>
           </div>
         )}

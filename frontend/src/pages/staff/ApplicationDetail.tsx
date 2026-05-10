@@ -10,6 +10,7 @@ import StageDecisionModal from '../../components/applications/StageDecisionModal
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import type { WorkflowTransition, DecisionType } from '../../types';
 import { getApiErrorMessage } from '../../utils/apiError';
+import { convertToUpperCase } from '../../api/utils';
 
 export default function ApplicationDetailStaff() {
   const { id } = useParams<{ id: string }>();
@@ -70,8 +71,8 @@ export default function ApplicationDetailStaff() {
                   onClick={() => handleTransitionClick(t)}
                   disabled={transitioning}
                   className={`btn-primary text-sm py-1.5 px-4 ${
-                    t.to_state_key === 'REJECTED' ? 'bg-red-100 text-red-700 hover:bg-red-200' :
-                    t.to_state_key === 'APPROVED' ? 'bg-green-100 text-green-700 hover:bg-green-200' : ''
+                    convertToUpperCase(t.to_state_key).includes('REJECT') ? 'bg-red-100 text-red-700 hover:bg-red-200' :
+                    convertToUpperCase(t.to_state_key) === 'APPROVED' ? 'bg-green-100 text-green-700 hover:bg-green-200' : ''
                   }`}
                 >
                   {t.label || t.to_state_key}
@@ -125,6 +126,7 @@ export default function ApplicationDetailStaff() {
       {modalOpen && selectedTransition && (
         <StageDecisionModal
           transition={selectedTransition}
+          currentState={app.current_state}
           onConfirm={handleTransitionConfirm}
           onCancel={() => setModalOpen(false)}
           isLoading={transitioning}

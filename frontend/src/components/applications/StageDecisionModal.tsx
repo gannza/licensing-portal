@@ -1,20 +1,27 @@
 import { useState } from 'react';
 import type { WorkflowTransition, DecisionType } from '../../types';
+import { convertToUpperCase } from '../../api/utils';
 
 interface Props {
   transition: WorkflowTransition;
+  currentState: string;
   onConfirm: (decisionType: DecisionType, decisionNote: string) => void;
   onCancel: () => void;
   isLoading: boolean;
 }
 
-export default function StageDecisionModal({ transition, onConfirm, onCancel, isLoading }: Props) {
+export default function StageDecisionModal({ transition, currentState, onConfirm, onCancel, isLoading }: Props) {
   const [decisionType, setDecisionType] = useState<DecisionType>('APPROVED_STAGE');
   const [decisionNote, setDecisionNote] = useState('');
 
   const needsDecision = transition.requires_decision;
-  const isApproval = transition.to_state_key === 'APPROVED';
-  const isRejection = transition.to_state_key === 'REJECTED';
+  const isApproval = convertToUpperCase(transition.to_state_key).includes('APPROVE');
+  const isRejection = convertToUpperCase(transition.to_state_key).includes('REJECT');
+  const isSubmitted = currentState === 'SUBMITTED';
+// console.log('Transition requires decision:', needsDecision, 'isApproval:', isApproval, 'isRejection:', isRejection, 'currentState:', currentState);
+  const decisionTypes: DecisionType[] = isSubmitted
+    ? ['APPROVED_STAGE', 'REQUEST_INFO']
+    : ['APPROVED_STAGE'];
 
   const handleSubmit = () => {
     if (needsDecision && !decisionNote.trim()) return;
@@ -36,7 +43,7 @@ export default function StageDecisionModal({ transition, onConfirm, onCancel, is
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Decision Type</label>
               <div className="flex gap-2">
-                {(['APPROVED_STAGE', 'REQUEST_INFO', 'ESCALATED'] as const).map(dt => (
+                {decisionTypes.map(dt => (
                   <button
                     key={dt}
                     type="button"

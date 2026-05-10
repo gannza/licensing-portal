@@ -61,7 +61,7 @@ export default function UserCreate() {
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="card">
         <h2 className="text-xl font-bold text-brand-base">Create Staff User</h2>
-        <p className="text-gray-500 text-sm mt-1">Create a new BNR staff account and assign workflow roles.</p>
+        <p className="text-gray-500 text-sm mt-1">Create a new staff account and assign workflow roles.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">

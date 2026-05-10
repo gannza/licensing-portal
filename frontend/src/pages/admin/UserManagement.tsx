@@ -24,7 +24,7 @@ export default function UserManagement() {
         <div className="card flex-1">
           <h2 className="text-xl font-bold text-brand-base">User Management</h2>
           <p className="text-gray-500 text-sm mt-1">
-            Manage BNR staff accounts and workflow role assignments.
+            Manage staff accounts and workflow role assignments.
           </p>
         </div>
         <Link to="/app/admin/users/new" className="btn-primary whitespace-nowrap">

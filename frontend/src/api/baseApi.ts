@@ -24,6 +24,7 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
       result = await rawBaseQuery(args, api, extraOptions);
     } else {
       api.dispatch(logout());
+      window.location.replace('/login');
     }
   }
 

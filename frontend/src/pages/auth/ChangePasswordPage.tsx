@@ -1,14 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
 import { useChangePasswordMutation } from '../../api/authApi';
-import { setCredentials } from '../../slices/authSlice';
 
 export default function ChangePasswordPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [changePassword, { isLoading }] = useChangePasswordMutation();
 
@@ -19,8 +16,7 @@ export default function ChangePasswordPage() {
       return;
     }
     try {
-      const res = await changePassword({ new_password: newPassword }).unwrap();
-      dispatch(setCredentials({ user: res.data.user }));
+      await changePassword({ new_password: newPassword }).unwrap();
       toast.success('Password changed successfully!');
       navigate('/app');
     } catch (err: any) {

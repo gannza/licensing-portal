@@ -19,6 +19,7 @@ src/
 |---- services/       Business logic and transaction coordination
 |---- repositories/   All SQL queries (via Knex query builder)
 |---- controller/     Handle request and response
+|---- DTO/            Handle request validation
 |---- middleware/     auth, rbac, upload, errorHandler
 |---  utils/          jwt, password hashing, custom error classes, validate helper
 └---  test/           unit test, integration test

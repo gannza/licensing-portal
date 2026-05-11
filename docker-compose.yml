@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: bnr_portal
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d bnr_portal"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file: ./backend/.env
+    environment:
+      DB_HOST: postgres
+    ports:
+      - "5000:5000"
+    volumes:
+      - uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+    depends_on:
+      - backend
+    env_file: ./frontend/.env
+    environment:
+      VITE_API_TARGET: http://backend:5000
+    ports:
+      - "5173:5173"
+
+volumes:
+  pgdata:
+  uploads:

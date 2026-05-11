@@ -10,6 +10,7 @@ An app used by the National Bank of Rwanda to facilitate licensing of various ap
 - [API Documentation](docs/API_Documentation.md) – contains all endpoints (except those marked *public*) 
 - [Backend README](backend/README.md)
 - [Frontend README](frontend/README.md)
+- [USER_GUIDE_DOCUMENT](docs/USER_GUIDE)
 ---
 
 ## Prerequisites

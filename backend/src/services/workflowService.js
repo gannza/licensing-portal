@@ -126,15 +126,7 @@ async function updateWorkflowState(stateId, body) {
 async function deleteWorkflowState(stateId) {
   const existing = await workflowRepo.findWorkflowStateById(stateId);
   if (!existing) throw new NotFoundError("WorkflowState");
-  const state = await workflowRepo.updateWorkflowState(stateId, body);
-  return state;
-}
-
-async function deleteWorkflowState(stateId) {
-  const existing = await workflowRepo.findWorkflowStateById(stateId);
-  if (!existing) throw new NotFoundError("WorkflowState");
   await workflowRepo.deleteWorkflowState(stateId);
-
   return true;
 }
 

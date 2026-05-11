@@ -63,35 +63,35 @@ describe('POST /api/auth/login', () => {
     expect(cookies.every((c) => c.toLowerCase().includes('httponly'))).toBe(true);
   });
 
-  it('returns 401 for an unknown email address', async () => {
+  it('returns 403 for an unknown email address', async () => {
     userRepo.findByEmail.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/auth/login')
       .send({ email: 'nobody@bnr.rw', password: 'Test1234!' });
 
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(403);
     expect(res.body.success).toBe(false);
   });
 
-  it('returns 401 for a wrong password', async () => {
+  it('returns 403 for a wrong password', async () => {
     verifyPassword.mockResolvedValue(false);
 
     const res = await request(app)
       .post('/api/auth/login')
       .send({ email: 'test@bnr.rw', password: 'WrongPass1!' });
 
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(403);
   });
 
-  it('returns 401 for an inactive account', async () => {
+  it('returns 403 for an inactive account', async () => {
     userRepo.findByEmail.mockResolvedValue({ ...mockUser, is_active: false });
 
     const res = await request(app)
       .post('/api/auth/login')
       .send({ email: 'test@bnr.rw', password: 'Test1234!' });
 
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(403);
   });
 
   it('returns 400 for a malformed email', async () => {
@@ -147,13 +147,13 @@ describe('POST /api/auth/logout', () => {
 // GET /api/auth/me — expired-token guard
 
 describe('GET /api/auth/me', () => {
-  it('returns 401 when no access token is provided', async () => {
+  it('returns 403 when no access token is provided', async () => {
     const res = await request(app).get('/api/auth/me');
 
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(403);
   });
 
-  it('returns 401 for an expired access token', async () => {
+  it('returns 403 for an expired access token', async () => {
     const expiredToken = jwt.sign(
       { sub: mockUser.id, system_role: mockUser.system_role },
       ACCESS_SECRET,
@@ -164,10 +164,10 @@ describe('GET /api/auth/me', () => {
       .get('/api/auth/me')
       .set('Cookie', `access_token=${expiredToken}`);
 
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(403);
   });
 
-  it('returns 401 for a token signed with the wrong secret', async () => {
+  it('returns 403 for a token signed with the wrong secret', async () => {
     const badToken = jwt.sign(
       { sub: mockUser.id, system_role: mockUser.system_role },
       'wrong-secret',
@@ -178,7 +178,7 @@ describe('GET /api/auth/me', () => {
       .get('/api/auth/me')
       .set('Cookie', `access_token=${badToken}`);
 
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(403);
   });
 
   it('returns 200 with user data for a valid access token', async () => {

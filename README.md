@@ -6,8 +6,10 @@ An app used by the National Bank of Rwanda to facilitate licensing of various ap
 ## Documentation
 
 - [High-Level Architecture Design](docs/High_Level_Architecture_Design.pdf) - describes the architecture of the whole application; both frontend and backend, as well as databases.
-- [Setup and Configuration](docs/setup.md) – contains all environment variables 
-
+- [Setup and Configuration](docs/SETUP.md) – contains all environment variables 
+- [API Documentation](docs/API_Documentation.md) – contains all endpoints (except those marked *public*) 
+- [Backend README](backend/README.md)
+- [Frontend README](frontend/README.md)
 ---
 
 ## Prerequisites
@@ -99,7 +101,8 @@ After running seeds, the following accounts are available:
 
 ## Testing
 
-Tests live in `backend/src/tests/` and run with Jest + Supertest. No database is required — the DB layer is fully mocked.
+Tests live in `backend/src/tests/` and run with Jest + Supertest. 
+No database is required,  the DB layer is fully mocked.
 
 ### Running the tests
 

@@ -5,7 +5,7 @@ An app used by the National Bank of Rwanda to facilitate licensing of various ap
 
 ## Documentation
 
-- [High-Level Architecture Design](docs/High_Level_Architecture_Design.docx) - describes the architecture of the whole application; both frontend and backend, as well as databases.
+- [High-Level Architecture Design](docs/High_Level_Architecture_Design.pdf) - describes the architecture of the whole application; both frontend and backend, as well as databases.
 - [Setup and Configuration](docs/setup.md) – contains all environment variables 
 
 ---

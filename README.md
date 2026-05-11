@@ -78,7 +78,7 @@ The frontend dev server runs on port 5173 and proxies `/api` requests to the bac
 |----------------------|-------------------------------------------|
 | `npm run migrate`    | Apply all pending migrations              |
 | `npm run migrate:rollback` | Roll back the last migration batch  |
-| `npm run seed`       | Insert seed data (idempotent — safe to re-run) |
+| `npm run seed`       | Insert seed data (idempotent - safe to re-run) |
 
 ---
 

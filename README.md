@@ -50,7 +50,7 @@ docker compose down -v
 
 ## Running manually
 
-### Backend
+### [Backend](backend/README.md) 
 
 ```bash
 cd backend
@@ -62,7 +62,7 @@ npm run seed
 npm run dev
 ```
 
-### Frontend
+### [Frontend](frontend/README.md)
 
 ```bash
 cd frontend
